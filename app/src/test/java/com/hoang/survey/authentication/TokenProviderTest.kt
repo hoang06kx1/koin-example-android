@@ -48,14 +48,14 @@ class TokenProviderTest {
         tokenProvider.saveToken(fakeToken)
         assertThat(tokenProvider.getToken()).isEqualTo(fakeToken)
 
-        tokenProvider.saveToken(fakeToken)
-        tokenProvider.getToken()
-        tokenProvider.getToken()
-        assertThat(tokenProvider.getToken()).isEqualTo(fakeToken) // call n times get the same value as first time
-
         val newToken = "5hgttSHHmWWMtpe8WGgyg/QatbkLHo5 rfEQs=9fdfeyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9leGFtcGxlLm9yZyIsImF1ZCI6Imh0dHA6XC9cL2V4YW1wbGUuY29tIiwiaWF0IjoxMzU2OTk5NTI0LCJuYmYiOjEzNTcwMDAwMDAsImRhdGEiOnsiaWQiOiI5IiwiZmlyc3RuYW1lIjoiTWlrZSIsImxhc3RuYW1lIjoiRGFsaXNheSIsImVtYWlsIjoibWlrZUBjb2Rlb2ZhbmluamEuY29tIn19.h_Q4gJ3epcpwdwNCNCYxtiKdXsN34W9MEjxZ7sx21Vs"
         tokenProvider.saveToken(newToken)
-        assertThat(tokenProvider.getToken()).isEqualTo(newToken)
+        assertThat(tokenProvider.getToken()).isEqualTo(newToken) // update new token successfully
+
+        tokenProvider.saveToken("$fakeToken$fakeToken")
+        tokenProvider.getToken()
+        tokenProvider.getToken()
+        assertThat(tokenProvider.getToken()).isEqualTo("$fakeToken$fakeToken") // call n times get the same value as first time
     }
 
     @Test
