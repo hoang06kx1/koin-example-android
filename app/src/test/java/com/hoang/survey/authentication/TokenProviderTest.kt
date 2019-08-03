@@ -3,6 +3,7 @@ package com.hoang.survey.authentication
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
+import android.util.Base64
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
@@ -13,6 +14,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
 import org.mockito.Mockito.RETURNS_DEEP_STUBS
+import java.lang.StringBuilder
+import java.util.*
 
 @RunWith(AndroidJUnit4::class)
 
@@ -24,7 +27,8 @@ class TokenProviderTest {
     lateinit var editor: SharedPreferences.Editor
     lateinit var context: Context
     lateinit var tokenProvider: TokenProvider
-    val fakeToken = "mmH5EI0cWpmEjihY0Ii0mmH5EI0cWpmEjihY0Ii0mmH5EI0cWpmEjihY0Ii0mmH5EI0cWpmEjihY0Ii0mmH5EI0cWpmEjihY0Ii0mmH5EI0cWpmEjihY0Ii0"
+    val fakeToken =
+        "mmH5EI0cWpmEjihY0Ii0mmH5EI0cWpmEjihY0Ii0mmH5EI0cWpmEjihY0Ii0mmH5EI0cWpmEjihY0Ii0mmH5EI0cWpmEjihY0Ii0mmH5EI0cWpmEjihY0Ii0"
     var encryptedToken = ""
     var decryptedToken = ""
 
@@ -48,20 +52,32 @@ class TokenProviderTest {
         tokenProvider.saveToken(fakeToken)
         assertThat(tokenProvider.getToken()).isEqualTo(fakeToken)
 
-        val newToken = "5hgttSHHmWWMtpe8WGgyg/QatbkLHo5 rfEQs=9fdfeyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9leGFtcGxlLm9yZyIsImF1ZCI6Imh0dHA6XC9cL2V4YW1wbGUuY29tIiwiaWF0IjoxMzU2OTk5NTI0LCJuYmYiOjEzNTcwMDAwMDAsImRhdGEiOnsiaWQiOiI5IiwiZmlyc3RuYW1lIjoiTWlrZSIsImxhc3RuYW1lIjoiRGFsaXNheSIsImVtYWlsIjoibWlrZUBjb2Rlb2ZhbmluamEuY29tIn19.h_Q4gJ3epcpwdwNCNCYxtiKdXsN34W9MEjxZ7sx21Vs"
-        tokenProvider.saveToken(newToken)
-        assertThat(tokenProvider.getToken()).isEqualTo(newToken) // update new token successfully
+        tokenProvider.saveToken("$fakeToken$fakeToken") // update new token
+        tokenProvider.getToken()
+        tokenProvider.getToken()
+        assertThat(tokenProvider.getToken()).isEqualTo("$fakeToken$fakeToken") // token is updated & get token many times don't affect the return value
+    }
 
-        tokenProvider.saveToken("$fakeToken$fakeToken")
-        tokenProvider.getToken()
-        tokenProvider.getToken()
-        assertThat(tokenProvider.getToken()).isEqualTo("$fakeToken$fakeToken") // call n times get the same value as first time
+    @Test
+    fun `save empty token should be fine`() {
+        tokenProvider.saveToken("")
+        assertThat(tokenProvider.getToken()).isEmpty()
+    }
+
+    @Test
+    fun `save longest token should be fine`() {
+        val longToken = StringBuilder().apply {
+            repeat(2000) {append('a')}
+        }.toString()
+        assertThat(longToken.length).isEqualTo(2000)
+        tokenProvider.saveToken(longToken)
+        assertThat(tokenProvider.getToken()).isEqualTo(longToken)
     }
 
     @Test
     fun `token should be encrypted and save to sharedPreference`() {
         tokenProvider.saveToken(fakeToken)
-        assertThat(sharedPreferences.getString(TokenProvider.TOKEN_KEY,"")).isEqualTo(encryptedToken)
+        assertThat(sharedPreferences.getString(TokenProvider.TOKEN_KEY, "")).isEqualTo(encryptedToken)
     }
 
     @Test
@@ -83,7 +99,7 @@ class TokenProviderTest {
     @Test
     fun `token should be saved to memory after read from sharedPreference`() {
         val mockSharedPreferences: SharedPreferences = mock()
-        whenever(mockSharedPreferences.getString(any(),any())).thenReturn(encryptedToken)
+        whenever(mockSharedPreferences.getString(any(), any())).thenReturn(encryptedToken)
         val tokenProvider = TokenProvider.getInstance(mockSharedPreferences, SECRETKEY)
         tokenProvider.getToken() // read from sharedPrefence
         tokenProvider.getToken() // read from memory
