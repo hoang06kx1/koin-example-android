@@ -20,6 +20,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
 }
 
 dependencies {
@@ -28,9 +33,6 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'androidx.core:core-ktx:1.0.2'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.2.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     // Koin for Android Architecture ViewModel
     implementation 'org.koin:koin-android-viewmodel:2.0.1'
     implementation 'com.github.bumptech.glide:glide:4.9.0'
@@ -46,11 +48,45 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxkotlin:2.1.0'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation 'com.blankj:utilcode:1.23.7'
-    // leak detection
+    // Leak detection
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.1'
     releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.1'
-
-    // encryption
     // Encryption
     implementation 'com.scottyab:aescrypt:0.0.1'
+
+    /*** Integration test ***/
+    // Core library
+    androidTestImplementation 'androidx.test:core:1.2.0'
+
+    // AndroidJUnitRunner and JUnit Rules
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test:rules:1.2.0'
+
+    // Assertions
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.ext:truth:1.2.0'
+    androidTestImplementation 'com.google.truth:truth:0.44'
+
+    // Espresso dependencies
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+
+    /*** Unit test ***/
+    testImplementation 'org.jetbrains.kotlin:kotlin-stdlib:1.3.41'
+    testImplementation 'org.jetbrains.kotlin:kotlin-test-junit:1.3.40'
+    testImplementation "com.nhaarman:mockito-kotlin:1.1.0"
+    // Core library
+    testImplementation 'androidx.test:core:1.2.0'
+
+    // AndroidJUnitRunner and JUnit Rules
+    testImplementation 'androidx.test:runner:1.2.0'
+    testImplementation 'androidx.test:rules:1.2.0'
+
+    // Assertions
+    testImplementation 'androidx.test.ext:junit:1.1.1'
+    testImplementation 'androidx.test.ext:truth:1.2.0'
+    testImplementation 'com.google.truth:truth:0.44'
+
+    // Espresso dependencies
+    testImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    testImplementation "org.robolectric:robolectric:4.3"
 }

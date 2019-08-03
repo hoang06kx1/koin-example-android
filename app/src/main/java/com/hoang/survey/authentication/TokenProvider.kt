@@ -8,9 +8,8 @@ class TokenProvider private constructor(
     private val sharedPreferences: SharedPreferences,
     private val secretKey: String
 ) {
-    val TOKEN_KEY = "TOKEN_KEY"
-
     companion object {
+        val TOKEN_KEY = "TOKEN_KEY"
         private var instance: TokenProvider? = null
         fun getInstance(pref: SharedPreferences, secretKey: String): TokenProvider =
             instance ?: synchronized(this) {
@@ -18,7 +17,7 @@ class TokenProvider private constructor(
             }
     }
 
-    var currentToken = ""
+    private var currentToken = ""
 
     @SuppressLint("ApplySharedPref")
     fun saveToken(token: String) {
@@ -36,9 +35,10 @@ class TokenProvider private constructor(
         return if (currentToken.isNotBlank()) {
             currentToken
         } else {
-            sharedPreferences.getString(TOKEN_KEY, "")?.let {
-                return AESCrypt.decrypt(secretKey, it)
-            } ?: ""
+            val encryptedToken = sharedPreferences.getString(TOKEN_KEY, "")
+            if (encryptedToken.isNullOrBlank()) return ""
+            currentToken = AESCrypt.decrypt(secretKey, encryptedToken)
+            return currentToken
         }
     }
 }
