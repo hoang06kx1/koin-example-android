@@ -12,6 +12,7 @@
 .idea/misc.xml
 .idea/modules.xml
 .idea/scopes/scope_settings.xml
+.idea/caches
 .idea/vcs.xml
 .DS_Store
 /build

@@ -49,4 +49,8 @@ dependencies {
     // leak detection
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.1'
     releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.1'
+
+    // encryption
+    // Encryption
+    implementation 'com.scottyab:aescrypt:0.0.1'
 }
