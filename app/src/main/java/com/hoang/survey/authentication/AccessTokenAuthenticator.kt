@@ -33,6 +33,7 @@ class AccessTokenAuthenticator(
 
                 val updatedToken = tokenProvider.refreshToken()
                 if (updatedToken.isNullOrBlank()) return null
+                tokenProvider.saveToken(updatedToken)
                 val originUrl = response.request.url
                 val newUrl = originUrl.newBuilder()
                     .removeAllQueryParameters("access_token")

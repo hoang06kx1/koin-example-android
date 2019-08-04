@@ -56,17 +56,21 @@ private fun providesOkHttpClient(accessTokenProvider: AccessTokenProvider): OkHt
 
     val tokenInterceptor = Interceptor {
         var request = it.request()
-        val url = request.url.newBuilder().addQueryParameter("access_token", accessTokenProvider.getToken()).build()
-        request = request.newBuilder().url(url).build()
-        it.proceed(request)
+        if (request.url.pathSegments.lastOrNull()?.toString() == "token") { // don't add token in case refresh token is called
+            it.proceed(request)
+        } else {
+            val url = request.url.newBuilder().addQueryParameter("access_token", accessTokenProvider.getToken()).build()
+            request = request.newBuilder().url(url).build()
+            it.proceed(request)
+        }
     }
 
     return OkHttpClient.Builder().apply {
         readTimeout(DEFAULT_NETWORK_TIMEOUT, TimeUnit.SECONDS)
         writeTimeout(DEFAULT_NETWORK_TIMEOUT, TimeUnit.SECONDS)
-        addInterceptor(logInterceptor)
         addInterceptor(tokenInterceptor)
         authenticator(AccessTokenAuthenticator(accessTokenProvider))
+        addInterceptor(logInterceptor)
     }.build()
 }
 
