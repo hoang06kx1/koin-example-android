@@ -60,8 +60,13 @@ class AccessTokenProvider private constructor(
             .url(url)
             .post(emptyBody.toRequestBody())
             .build()
-        val response = okHttpClient.newCall(request).execute().body.toString()
-        val jsonResponse = JSONObject(response)
-        return jsonResponse.getString("access_token")
+        val response = okHttpClient.newCall(request).execute()
+        if (response.isSuccessful) {
+            val responseString = response.body!!.string()
+            val jsonResponse = JSONObject(responseString)
+            return jsonResponse.getString("access_token")
+        } else {
+            return ""
+        }
     }
 }

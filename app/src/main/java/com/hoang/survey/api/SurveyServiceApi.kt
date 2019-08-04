@@ -5,9 +5,9 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface SurveyServiceApi {
-    @GET
+    @GET(".")
     fun getAllSurveys(): Single<List<SurveyItemResponse>>
 
-    @GET
+    @GET(".")
     fun getSurveys(@Query("page") page: Int, @Query("per_page") perPage: Int): Single<List<SurveyItemResponse>>
 }
