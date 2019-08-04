@@ -4,16 +4,16 @@ import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import com.scottyab.aescrypt.AESCrypt
 
-class TokenProvider private constructor(
+class AccessTokenProvider private constructor(
     private val sharedPreferences: SharedPreferences,
     private val secretKey: String
 ) {
     companion object {
         val TOKEN_KEY = "TOKEN_KEY"
-        private var instance: TokenProvider? = null
-        fun getInstance(pref: SharedPreferences, secretKey: String): TokenProvider =
+        private var instance: AccessTokenProvider? = null
+        fun getInstance(pref: SharedPreferences, secretKey: String): AccessTokenProvider =
             instance ?: synchronized(this) {
-                instance ?: TokenProvider(pref, secretKey)
+                instance ?: AccessTokenProvider(pref, secretKey)
             }
     }
 

@@ -5,6 +5,7 @@ import com.blankj.utilcode.util.Utils
 import com.hoang.survey.di.appModule
 import io.reactivex.plugins.RxJavaPlugins
 import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
 import timber.log.Timber
 
@@ -25,9 +26,12 @@ class SurveyApplication : Application() {
         }
 
         // DI
-        startKoin {
-            androidContext(this@SurveyApplication)
-            modules(appModule)
+        // this check is for RoboElectric tests that run in parallel so Koin gets set up multiple times
+        if (GlobalContext.getOrNull() == null) {
+            startKoin {
+                androidContext(this@SurveyApplication)
+                modules(appModule)
+            }
         }
     }
 }
