@@ -21,6 +21,13 @@ fun MockWebServer.enqueueFromFile(fileName: String, headers: Map<String, String>
     )
 }
 
-fun MockWebServer.takeRequestWithTimeout(timeout:Long = 5L): RecordedRequest? {
+fun MockWebServer.takeRequestWithTimeout(timeout: Long = 5L): RecordedRequest? {
     return this.takeRequest(timeout, TimeUnit.SECONDS)
+}
+
+fun <T> resetSingleton(klass: Class<T>) {
+    val instance = klass.getDeclaredField("instance")
+    instance.isAccessible = true
+    instance.set(null, null)
+    instance.set(null, null)
 }

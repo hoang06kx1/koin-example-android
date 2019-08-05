@@ -8,6 +8,7 @@ import com.google.common.truth.Truth.assertThat
 import com.hoang.survey.di.*
 import com.hoang.survey.enqueueFromFile
 import com.hoang.survey.repository.SurveyRepository
+import com.hoang.survey.resetSingleton
 import com.hoang.survey.takeRequestWithTimeout
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
@@ -40,6 +41,10 @@ class AccessTokenAuthenticatorTest : KoinTest {
 
     @Before
     fun setUp() {
+        // Reset singletons
+        resetSingleton(AccessTokenProvider::class.java)
+        resetSingleton(SurveyRepositoryHolder::class.java)
+
         context = ApplicationProvider.getApplicationContext()
         sharedPreferences = context.getSharedPreferences(FILENAME, Context.MODE_PRIVATE)
         server = MockWebServer()
@@ -49,6 +54,11 @@ class AccessTokenAuthenticatorTest : KoinTest {
         okHttpClient = providesOkHttpClient(accessTokenProvider)
         retrofit = providesRetrofitAdapter(provideGson(), okHttpClient, testUrl, refresTokenEndpoint)
         repository = provideSurveyRepositoryImpl(retrofit, refresTokenEndpoint)
+    }
+
+    @Test
+    fun `SurveyRepositoryHolder should be singleton`() {
+        assertThat(SurveyRepositoryHolder.getInstance()).isEqualTo(SurveyRepositoryHolder.getInstance())
     }
 
     @Test
@@ -62,14 +72,14 @@ class AccessTokenAuthenticatorTest : KoinTest {
         server.enqueueFromFile("surveys-1.json")
 
         // Make requests
-        repository.getSurveys(1,1).subscribe()
+        repository.getSurveys(1, 1).subscribe()
 
         // Check requests
         server.takeRequestWithTimeout()                                     // first survey request, get 401 response
         val refreshTokenRequest = server.takeRequestWithTimeout()           // request to get new token
         val surveyRequest = server.takeRequestWithTimeout()                 // should retry request with new token
 
-        repository.getSurveys(1,1).subscribe()                // second times
+        repository.getSurveys(1, 1).subscribe()                // second times
         val surveyRequest2 = server.takeRequestWithTimeout()                // should not call request new token
 
         assertThat(accessTokenProvider.getToken()).isEqualTo(FAKE_NEW_TOKEN)                                        // new token is updated
@@ -81,12 +91,6 @@ class AccessTokenAuthenticatorTest : KoinTest {
 
     @After
     fun tearDown() {
-        stopKoin()
         server.shutdown()
-        // Reset singleton
-        val instance = AccessTokenProvider::class.java!!.getDeclaredField("instance")
-        instance.isAccessible = true
-        instance.set(null, null)
-        instance.set(null, null)
     }
 }
