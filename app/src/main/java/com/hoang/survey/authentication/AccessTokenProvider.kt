@@ -3,17 +3,21 @@ package com.hoang.survey.authentication
 import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import com.scottyab.aescrypt.AESCrypt
+import org.koin.core.KoinComponent
 
-class TokenProvider private constructor(
+class AccessTokenProvider private constructor(
     private val sharedPreferences: SharedPreferences,
     private val secretKey: String
-) {
+) : KoinComponent {
     companion object {
         val TOKEN_KEY = "TOKEN_KEY"
-        private var instance: TokenProvider? = null
-        fun getInstance(pref: SharedPreferences, secretKey: String): TokenProvider =
+        private var instance: AccessTokenProvider? = null
+        fun getInstance(pref: SharedPreferences, secretKey: String): AccessTokenProvider =
             instance ?: synchronized(this) {
-                instance ?: TokenProvider(pref, secretKey)
+                instance ?: run {
+                    instance = AccessTokenProvider(pref, secretKey)
+                    instance!!
+                }
             }
     }
 
