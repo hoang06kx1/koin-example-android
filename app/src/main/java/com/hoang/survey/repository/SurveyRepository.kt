@@ -8,15 +8,15 @@ import retrofit2.Call
 
 interface SurveyRepository {
     fun getSurveys(page: Int, perPage: Int): Single<List<SurveyItemResponse>>
-    fun refreshToken(refreshTokenUrl: String): Call<TokenResponse>
+    fun refreshToken(): Call<TokenResponse>
 }
 
-class SurveyRepositoryImpl(private val surveyServiceApi: SurveyServiceApi) : SurveyRepository {
+class SurveyRepositoryImpl(private val surveyServiceApi: SurveyServiceApi, private val refreshTokenUrl: String) : SurveyRepository {
     override fun getSurveys(page: Int, perPage: Int): Single<List<SurveyItemResponse>> {
         return surveyServiceApi.getSurveys(page, perPage)
     }
 
-    override fun refreshToken(refreshTokenUrl: String): Call<TokenResponse> {
+    override fun refreshToken(): Call<TokenResponse> {
         return surveyServiceApi.refreshToken(refreshTokenUrl)
     }
 }

@@ -35,7 +35,7 @@ class AccessTokenAuthenticator(
                 }
 
                 val responseBody =
-                    surveyRepositoryHolder.surveyRepository!!.refreshToken(refreshTokenUrl = REFRESH_TOKEN_ENDPOINT)
+                    surveyRepositoryHolder.surveyRepository!!.refreshToken()
                         .execute()
                 val updatedToken = responseBody.body()?.accessToken
                 if (updatedToken.isNullOrBlank()) return null

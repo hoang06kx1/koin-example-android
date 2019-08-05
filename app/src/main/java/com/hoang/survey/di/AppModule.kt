@@ -35,9 +35,9 @@ val testableModule = module {
 }
 
 val frameworkModule = module {
-    single { provideSurveyRepositoryImpl(get())}
+    single { provideSurveyRepositoryImpl(get(), REFRESH_TOKEN_ENDPOINT)}
     single { androidApplication().getSharedPreferences("com.hoang.survey.pref", MODE_PRIVATE) as SharedPreferences }
-    single { providesRetrofitAdapter(httpClient = get(), gson = get(), endPoint = API_ENDPOINT) }
+    single { providesRetrofitAdapter(httpClient = get(), gson = get(), endPoint = API_ENDPOINT, refreshTokenEndpoint = REFRESH_TOKEN_ENDPOINT) }
 }
 
 fun provideGson(): Gson {
@@ -46,7 +46,7 @@ fun provideGson(): Gson {
         .create()
 }
 
-fun providesRetrofitAdapter(gson: Gson, httpClient: OkHttpClient, endPoint: String): Retrofit {
+fun providesRetrofitAdapter(gson: Gson, httpClient: OkHttpClient, endPoint: String, refreshTokenEndpoint: String): Retrofit {
     val retrofit = Retrofit.Builder()
         .client(httpClient)
         .baseUrl(endPoint)
@@ -57,7 +57,7 @@ fun providesRetrofitAdapter(gson: Gson, httpClient: OkHttpClient, endPoint: Stri
     // inject survey repository for refresh token
     if (SurveyRepositoryHolder.getInstance().surveyRepository == null) {
         SurveyRepositoryHolder.getInstance().surveyRepository =
-            SurveyRepositoryImpl(retrofit.create(SurveyServiceApi::class.java))
+            SurveyRepositoryImpl(retrofit.create(SurveyServiceApi::class.java), refreshTokenEndpoint)
     }
     return retrofit
 }
@@ -87,9 +87,9 @@ fun providesOkHttpClient(accessTokenProvider: AccessTokenProvider): OkHttpClient
     }.build()
 }
 
-fun provideSurveyRepositoryImpl(retrofit: Retrofit): SurveyRepository {
+fun provideSurveyRepositoryImpl(retrofit: Retrofit, refreshTokenEndpoint: String): SurveyRepository {
     if (SurveyRepositoryHolder.getInstance().surveyRepository == null) {
-        val surveyRepository = SurveyRepositoryImpl(retrofit.create(SurveyServiceApi::class.java))
+        val surveyRepository = SurveyRepositoryImpl(retrofit.create(SurveyServiceApi::class.java), refreshTokenEndpoint)
         SurveyRepositoryHolder.getInstance().surveyRepository = surveyRepository
     }
     return SurveyRepositoryHolder.getInstance().surveyRepository!!
