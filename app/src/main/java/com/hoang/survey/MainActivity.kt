@@ -9,7 +9,10 @@ import timber.log.Timber
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        val repository: SurveyRepository by inject()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        repository.getSurveys(1, 5).subscribe()
+        Timber.d("finish")
     }
 }

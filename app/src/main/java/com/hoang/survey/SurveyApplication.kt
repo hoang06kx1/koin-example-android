@@ -2,7 +2,8 @@ package com.hoang.survey
 
 import android.app.Application
 import com.blankj.utilcode.util.Utils
-import com.hoang.survey.di.appModule
+import com.hoang.survey.di.frameworkModule
+import com.hoang.survey.di.testableModule
 import io.reactivex.plugins.RxJavaPlugins
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext
@@ -30,7 +31,7 @@ class SurveyApplication : Application() {
         if (GlobalContext.getOrNull() == null) {
             startKoin {
                 androidContext(this@SurveyApplication)
-                modules(appModule)
+                modules(listOf(testableModule, frameworkModule))
             }
         }
     }

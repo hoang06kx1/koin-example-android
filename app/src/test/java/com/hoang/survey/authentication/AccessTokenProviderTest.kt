@@ -6,7 +6,6 @@ import android.content.SharedPreferences
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
-import com.hoang.survey.BuildConfig
 import com.nhaarman.mockito_kotlin.*
 import com.scottyab.aescrypt.AESCrypt
 import org.junit.Before
@@ -14,8 +13,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
 import org.mockito.Mockito.RETURNS_DEEP_STUBS
-import org.robolectric.annotation.Config
-import java.lang.StringBuilder
 
 @RunWith(AndroidJUnit4::class)
 class AccessTokenProviderTest {
@@ -23,7 +20,6 @@ class AccessTokenProviderTest {
     val FILENAME = "preftest"
     val SECRETKEY = "secretkey"
     lateinit var sharedPreferences: SharedPreferences
-    lateinit var editor: SharedPreferences.Editor
     lateinit var context: Context
     lateinit var accessTokenProvider: AccessTokenProvider
     val fakeToken =

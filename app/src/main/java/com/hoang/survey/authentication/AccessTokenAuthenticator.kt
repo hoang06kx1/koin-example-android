@@ -1,12 +1,16 @@
 package com.hoang.survey.authentication
 
+import com.hoang.survey.di.REFRESH_TOKEN_ENDPOINT
+import com.hoang.survey.repository.SurveyRepository
+import com.hoang.survey.repository.SurveyRepositoryImpl
 import okhttp3.Authenticator
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.Route
 
 class AccessTokenAuthenticator(
-    private val tokenProvider: AccessTokenProvider
+    val tokenProvider: AccessTokenProvider,
+    private val surveyRepositoryHolder: SurveyRepositoryHolder
 ) : Authenticator {
 
     override fun authenticate(route: Route?, response: Response): Request? {
@@ -31,7 +35,10 @@ class AccessTokenAuthenticator(
                         .build()
                 }
 
-                val updatedToken = tokenProvider.refreshToken()
+                val updatedTokenResponse =
+                    surveyRepositoryHolder.surveyRepository.refreshToken(refreshTokenUrl = REFRESH_TOKEN_ENDPOINT)
+                        .execute()
+                val updatedToken = updatedTokenResponse.body()?.getString("access_token")
                 if (updatedToken.isNullOrBlank()) return null
                 tokenProvider.saveToken(updatedToken)
                 val originUrl = response.request.url
@@ -48,4 +55,16 @@ class AccessTokenAuthenticator(
         }
         return null
     }
+}
+
+class SurveyRepositoryHolder private constructor() {
+    companion object {
+        private var instance: SurveyRepositoryHolder? = null
+        fun getInstance(): SurveyRepositoryHolder =
+            instance ?: synchronized(this) {
+                instance ?: SurveyRepositoryHolder()
+            }
+    }
+
+    lateinit var surveyRepository: SurveyRepository
 }
