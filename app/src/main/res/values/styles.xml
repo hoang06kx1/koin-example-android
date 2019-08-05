@@ -6,6 +6,30 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:textColorPrimary">@android:color/white</item>
     </style>
 
+
+    <style name="TextSurveyTitle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAppearance">@style/TextAppearanceTitle</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="TextSurveyDescription">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textAppearance">@style/TextAppearanceDescription</item>
+    </style>
+
+    <style name="TextAppearanceTitle" parent="TextAppearance.AppCompat.Title">
+        <item name="android:textSize">@dimen/textSurveyTitle</item>
+    </style>
+
+    <style name="TextAppearanceDescription" parent="TextAppearance.AppCompat.Caption">
+        <item name="android:textSize">@dimen/textSurveyDescription</item>
+        <item name="android:textColor">@color/text_white_light_transparent</item>
+    </style>
 </resources>
