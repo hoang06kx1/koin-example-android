@@ -1,18 +1,11 @@
 package com.hoang.survey
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.hoang.survey.api.SurveyItemResponse
-import com.hoang.survey.repository.SurveyRepository
-import org.koin.android.ext.android.inject
-import timber.log.Timber
+import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        val repository: SurveyRepository by inject()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        repository.getSurveys(1, 5).subscribe()
-        Timber.d("finish")
     }
 }

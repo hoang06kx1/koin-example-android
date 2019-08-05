@@ -17,7 +17,6 @@ import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidApplication
-import org.koin.core.get
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
@@ -32,8 +31,8 @@ val REFRESH_TOKEN_ENDPOINT =
 val testableModule = module {
     single { providesOkHttpClient(accessTokenProvider = get()) }
     single { provideGson() }
-    single<SurveyRepository> { provideSurveyRepositoryImpl(retrofit = get()) }
     single { AccessTokenProvider.getInstance(pref = get(), secretKey = DeviceUtils.getAndroidID()) }
+    single { provideSurveyRepositoryImpl(get())}
 }
 
 val frameworkModule = module {
@@ -48,12 +47,19 @@ fun provideGson(): Gson {
 }
 
 fun providesRetrofitAdapter(gson: Gson, httpClient: OkHttpClient, endPoint: String): Retrofit {
-    return Retrofit.Builder()
+    val retrofit = Retrofit.Builder()
         .client(httpClient)
         .baseUrl(endPoint)
         .addConverterFactory(GsonConverterFactory.create(gson))
         .addCallAdapterFactory(RxJava2CallAdapterFactory.createAsync())
         .build()
+
+    // inject survey repository for refresh token
+    if (SurveyRepositoryHolder.getInstance().surveyRepository == null) {
+        SurveyRepositoryHolder.getInstance().surveyRepository =
+            SurveyRepositoryImpl(retrofit.create(SurveyServiceApi::class.java))
+    }
+    return retrofit
 }
 
 fun providesOkHttpClient(accessTokenProvider: AccessTokenProvider): OkHttpClient {
@@ -81,9 +87,10 @@ fun providesOkHttpClient(accessTokenProvider: AccessTokenProvider): OkHttpClient
     }.build()
 }
 
-fun provideSurveyRepositoryImpl(retrofit: Retrofit): SurveyRepositoryImpl {
-    val repositoryImpl = SurveyRepositoryImpl(retrofit.create(SurveyServiceApi::class.java))
-    // inject survey repository for refresh token
-    SurveyRepositoryHolder.getInstance().surveyRepository = repositoryImpl
-    return repositoryImpl
+fun provideSurveyRepositoryImpl(retrofit: Retrofit): SurveyRepository {
+    if (SurveyRepositoryHolder.getInstance().surveyRepository == null) {
+        val surveyRepository = SurveyRepositoryImpl(retrofit.create(SurveyServiceApi::class.java))
+        SurveyRepositoryHolder.getInstance().surveyRepository = surveyRepository
+    }
+    return SurveyRepositoryHolder.getInstance().surveyRepository!!
 }

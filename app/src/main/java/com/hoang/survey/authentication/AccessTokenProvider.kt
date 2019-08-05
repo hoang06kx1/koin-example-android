@@ -2,15 +2,8 @@ package com.hoang.survey.authentication
 
 import android.annotation.SuppressLint
 import android.content.SharedPreferences
-import com.hoang.survey.api.SurveyServiceApi
 import com.scottyab.aescrypt.AESCrypt
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody.Companion.toRequestBody
-import org.json.JSONObject
 import org.koin.core.KoinComponent
-import org.koin.core.inject
-import retrofit2.Retrofit
 
 class AccessTokenProvider private constructor(
     private val sharedPreferences: SharedPreferences,
@@ -21,7 +14,10 @@ class AccessTokenProvider private constructor(
         private var instance: AccessTokenProvider? = null
         fun getInstance(pref: SharedPreferences, secretKey: String): AccessTokenProvider =
             instance ?: synchronized(this) {
-                instance ?: AccessTokenProvider(pref, secretKey)
+                instance ?: run {
+                    instance = AccessTokenProvider(pref, secretKey)
+                    instance!!
+                }
             }
     }
 

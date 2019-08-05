@@ -42,8 +42,6 @@ class AccessTokenAuthenticatorTest : KoinTest {
     val SECRETKEY = "secretkey"
     lateinit var context: Context
     lateinit var server: MockWebServer
-    val okHttpClient: OkHttpClient by inject()
-    val surveyRepository: SurveyRepository by inject()
 
     @Before
     fun setUp() {
@@ -59,7 +57,7 @@ class AccessTokenAuthenticatorTest : KoinTest {
         val testRunnerModule = module {
             single { providesOkHttpClient(accessTokenProvider = get()) }
             single { provideGson() }
-//            single<SurveyRepository> { provideSurveyRepositoryImpl(retrofit = get()) }
+            single<SurveyRepository> { provideSurveyRepositoryImpl(retrofit = get()) }
             single { AccessTokenProvider.getInstance(pref = get(), secretKey = "123123123") }
             single { context.getSharedPreferences(FILENAME, Context.MODE_PRIVATE) as SharedPreferences}
             single { providesRetrofitAdapter(httpClient = get(), gson = get(), endPoint = testUrl.toString()) }
@@ -79,46 +77,6 @@ class AccessTokenAuthenticatorTest : KoinTest {
         server.enqueue(successResponse)
 
         val accessTokenProvider = get<AccessTokenProvider>()
-        assertThat(accessTokenProvider).isNotNull()
-        val logInterceptor = HttpLoggingInterceptor().apply {
-            level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
-        }
-
-        val tokenInterceptor = Interceptor {
-            var request = it.request()
-            if (request.url.pathSegments.lastOrNull()?.toString() == "token") { // don't add token in case refresh token is called
-                it.proceed(request)
-            } else {
-                val url = request.url.newBuilder().addQueryParameter("access_token", accessTokenProvider.getToken()).build()
-                request = request.newBuilder().url(url).build()
-                it.proceed(request)
-            }
-        }
-
-//        val okHttp = OkHttpClient.Builder().apply {
-//            readTimeout(DEFAULT_NETWORK_TIMEOUT, TimeUnit.SECONDS)
-//            writeTimeout(DEFAULT_NETWORK_TIMEOUT, TimeUnit.SECONDS)
-//            addInterceptor(tokenInterceptor)
-//            authenticator(AccessTokenAuthenticator(accessTokenProvider))
-//            addInterceptor(logInterceptor)
-//        }.build()
-
-//        val retrofit = Retrofit.Builder()
-//            .client(okHttp)
-//            .baseUrl(server.url("/").toString())
-//            .addConverterFactory(GsonConverterFactory.create(Gson()))
-//            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-//            .build()
-
-        val retrofit: Retrofit by inject()
-        val testApi = retrofit.create(SurveyServiceApi::class.java)
-        testApi.getSurveys(1,10).subscribe()
-
-
-        val request1 = server.takeRequest()
-        val request2 = server.takeRequest()
-        val request3 = server.takeRequest()
-
         assertThat(accessTokenProvider.getToken()).isEqualTo(fakeRefreshToken)
     }
 
