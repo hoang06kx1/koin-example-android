@@ -34,6 +34,7 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
+import kotlin.test.assertTrue
 
 
 @RunWith(AndroidJUnit4::class)
@@ -41,30 +42,25 @@ class AccessTokenAuthenticatorTest : KoinTest {
     val FILENAME = "preftest"
     val SECRETKEY = "secretkey"
     lateinit var context: Context
+    lateinit var sharedPreferences: SharedPreferences
+
     lateinit var server: MockWebServer
 
     @Before
     fun setUp() {
         server = MockWebServer()
         context = ApplicationProvider.getApplicationContext()
-
+        sharedPreferences = context.getSharedPreferences(FILENAME, Context.MODE_PRIVATE)
     }
-
 
     @Test
     fun `When fails 401 unauthorized, Then call refresh token`() {
         val testUrl = server.url("/")
-        val testRunnerModule = module {
-            single { providesOkHttpClient(accessTokenProvider = get()) }
-            single { provideGson() }
-            single<SurveyRepository> { provideSurveyRepositoryImpl(retrofit = get()) }
-            single { AccessTokenProvider.getInstance(pref = get(), secretKey = "123123123") }
-            single { context.getSharedPreferences(FILENAME, Context.MODE_PRIVATE) as SharedPreferences}
-            single { providesRetrofitAdapter(httpClient = get(), gson = get(), endPoint = testUrl.toString()) }
-        }
-        startKoin {
-            modules(testRunnerModule)
-        }.checkModules()
+
+        val accessTokenProvider = AccessTokenProvider.getInstance(sharedPreferences, SECRETKEY)
+        val okHttpClient = providesOkHttpClient(accessTokenProvider)
+        val retrofit = providesRetrofitAdapter(provideGson(), okHttpClient, testUrl.toString())
+        val surveyRepository = provideSurveyRepositoryImpl(retrofit)
 
         val fakeRefreshToken = "asdfkvchksdfklm_ksifhwefewbf"
         val invalidTokenResponse = MockResponse().setResponseCode(401)
@@ -76,8 +72,8 @@ class AccessTokenAuthenticatorTest : KoinTest {
         server.enqueue(refreshTokenResponse)
         server.enqueue(successResponse)
 
-        val accessTokenProvider = get<AccessTokenProvider>()
-        assertThat(accessTokenProvider.getToken()).isEqualTo(fakeRefreshToken)
+        surveyRepository.getSurveys(1,2)
+        assertThat(surveyRepository).isNotNull()
     }
 
     @After

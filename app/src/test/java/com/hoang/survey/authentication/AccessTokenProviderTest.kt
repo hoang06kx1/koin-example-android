@@ -36,6 +36,11 @@ class AccessTokenProviderTest {
 
         // Ensure no shared preferences have leaked from previous tests
         assertThat(sharedPreferences.all).hasSize(0)
+
+        // Reset singleton
+        val instance = AccessTokenProvider::class.java!!.getDeclaredField("instance")
+        instance.isAccessible = true
+        instance.set(null, null)
         accessTokenProvider = AccessTokenProvider.getInstance(sharedPreferences, SECRETKEY)
 
         // Should return empty at this init stage
@@ -95,6 +100,10 @@ class AccessTokenProviderTest {
     fun `token should be saved to memory after read from sharedPreference`() {
         val mockSharedPreferences: SharedPreferences = mock()
         whenever(mockSharedPreferences.getString(any(), any())).thenReturn(encryptedToken)
+        // Reset singleton
+        val instance = AccessTokenProvider::class.java!!.getDeclaredField("instance")
+        instance.isAccessible = true
+        instance.set(null, null)
         val tokenProvider = AccessTokenProvider.getInstance(mockSharedPreferences, SECRETKEY)
         tokenProvider.getToken() // read from sharedPrefence
         tokenProvider.getToken() // read from memory

@@ -32,10 +32,10 @@ val testableModule = module {
     single { providesOkHttpClient(accessTokenProvider = get()) }
     single { provideGson() }
     single { AccessTokenProvider.getInstance(pref = get(), secretKey = DeviceUtils.getAndroidID()) }
-    single { provideSurveyRepositoryImpl(get())}
 }
 
 val frameworkModule = module {
+    single { provideSurveyRepositoryImpl(get())}
     single { androidApplication().getSharedPreferences("com.hoang.survey.pref", MODE_PRIVATE) as SharedPreferences }
     single { providesRetrofitAdapter(httpClient = get(), gson = get(), endPoint = API_ENDPOINT) }
 }
