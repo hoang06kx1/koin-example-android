@@ -23,7 +23,7 @@ class MainActivity : BaseActivity() {
         mainActivityViewModel.surveysLiveData.observe(this, Observer {
             (pager_surveys.adapter as SurveyPagerAdapter).submitData(it)
         })
-        mainActivityViewModel.getSurveys(1,5)
+        mainActivityViewModel.getSurveys()
     }
 
     private fun initViews() {

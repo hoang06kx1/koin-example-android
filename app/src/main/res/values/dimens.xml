@@ -7,4 +7,6 @@
     <dimen name="text_toolbar_title">28sp</dimen>
     <dimen name="button_toolbar">48dp</dimen>
     <dimen name="toolbar_min_height">56dp</dimen>
+    <dimen name="button_side_padding">24dp</dimen>
+    <dimen name="button_top_bottom_padding">12dp</dimen>
 </resources>

@@ -8,4 +8,5 @@
     <string name="no_internet">No Internet Connection</string>
     <string name="back_again_to_exit">Press back again to exit</string>
     <string name="survey_cap">SURVEY</string>
+    <string name="take_the_survey">Take the survey</string>
 </resources>

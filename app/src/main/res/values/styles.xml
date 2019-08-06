@@ -32,4 +32,16 @@
         <item name="android:textSize">@dimen/text_survey_description</item>
         <item name="android:textColor">@color/text_white_light_transparent</item>
     </style>
+
+    <style name="ButtonHome">
+        <item name="android:background">@drawable/button_red_round_corner</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingLeft">@dimen/button_side_padding</item>
+        <item name="android:paddingRight">@dimen/button_side_padding</item>
+        <item name="android:paddingTop">@dimen/button_top_bottom_padding</item>
+        <item name="android:paddingBottom">@dimen/button_top_bottom_padding</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:textColor">@color/text_white_light_transparent</item>
+    </style>
 </resources>
