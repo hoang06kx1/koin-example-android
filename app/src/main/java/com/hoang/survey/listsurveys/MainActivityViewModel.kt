@@ -56,6 +56,22 @@ class MainActivityViewModel(private val surveyRepository: SurveyRepository) : Ba
             }).addTo(disposables)
     }
 
+    fun refreshSurvey() {
+        if (surveysLiveData.value!!.isEmpty()) { // first load failed, reload data
+            getSurveysLazy()
+        } else { // update exising data
+            surveyRepository.getSurveys(1, _surveysLiveData.value!!.size)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(object : FullCallbackWrapper<List<SurveyItemResponse>>() {
+                    override fun     onResponse(response: ApiResponse<List<SurveyItemResponse>>) {
+                        response.result?.let {
+                            _surveysLiveData.value = it
+                        }
+                    }
+                }).addTo(disposables)
+        }
+    }
+
     /***
      * Load more item when user slide to near end
      */

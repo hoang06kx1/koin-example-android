@@ -58,6 +58,7 @@ dependencies {
     implementation 'com.github.GrenderG:Toasty:1.4.2'
     implementation 'androidx.viewpager2:viewpager2:1.0.0-beta02'
     implementation 'me.relex:circleindicator:2.1.4'
+    implementation 'com.jakewharton.rxbinding3:rxbinding:3.0.0'
     // Leak detection
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-beta-2'
 

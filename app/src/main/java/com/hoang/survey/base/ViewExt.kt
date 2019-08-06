@@ -6,8 +6,13 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.bumptech.glide.Glide
-import com.hoang.survey.R
 import es.dmoral.toasty.Toasty
+
+class ViewExt {
+    companion object {
+        val CLICK_THROTTLE_TIME = 3L // seconds
+    }
+}
 
 fun Activity.toastErrorShort(stringId: Int) {
     Toasty.error(this, stringId, Toast.LENGTH_SHORT, true).show()

@@ -2,9 +2,11 @@ package com.hoang.survey.base
 
 import androidx.appcompat.app.AppCompatActivity
 import com.kaopiz.kprogresshud.KProgressHUD
+import io.reactivex.disposables.CompositeDisposable
 
-open class BaseActivity: AppCompatActivity() {
-    protected var loadingDialog: KProgressHUD? = null
+open class BaseActivity : AppCompatActivity() {
+    private var loadingDialog: KProgressHUD? = null
+    protected var disposables = CompositeDisposable()
 
     fun showLoadingDialog() {
         if (!isFinishing) {
@@ -35,5 +37,12 @@ open class BaseActivity: AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         hideLoadingDialog()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (!disposables.isDisposed) {
+            disposables.dispose()
+        }
     }
 }
