@@ -2,6 +2,7 @@ package com.hoang.survey.listsurveys
 
 import android.os.Bundle
 import androidx.lifecycle.Observer
+import androidx.viewpager2.widget.ViewPager2
 import com.hoang.survey.R
 import com.hoang.survey.base.BaseActivity
 import com.hoang.survey.base.observeApiErrorMessageFromViewModel
@@ -23,7 +24,7 @@ class MainActivity : BaseActivity() {
         mainActivityViewModel.surveysLiveData.observe(this, Observer {
             (pager_surveys.adapter as SurveyPagerAdapter).submitData(it)
         })
-        mainActivityViewModel.getSurveys()
+        mainActivityViewModel.getSurveysLazy()
     }
 
     private fun initViews() {
@@ -32,6 +33,11 @@ class MainActivity : BaseActivity() {
         pager_surveys.adapter = SurveyPagerAdapter()
         indicator.setViewPager(pager_surveys)
         (pager_surveys.adapter as SurveyPagerAdapter).registerAdapterDataObserver(indicator.adapterDataObserver)
+        pager_surveys.registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                mainActivityViewModel.handleLoadMoreSurveys(position)
+            }
+        })
     }
 
     var lastBackPressTime = 0L

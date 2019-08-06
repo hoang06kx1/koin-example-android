@@ -63,6 +63,7 @@ dependencies {
 
     // Encryption
     implementation 'com.scottyab:aescrypt:0.0.1'
+    implementation 'cat.ereza:customactivityoncrash:2.1.0'
 
     /*** Integration test ***/
     // Core library
