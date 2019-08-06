@@ -29,7 +29,9 @@ class MainActivity : BaseActivity() {
         mainActivityViewModel.surveysLiveData.observe(this, Observer {
             (pager_surveys.adapter as SurveyPagerAdapter).submitData(it)
         })
-        mainActivityViewModel.getSurveysLazy()
+        if (savedInstanceState == null) { // avoid reload data on rotation/change locale....
+            mainActivityViewModel.getSurveysLazy()
+        }
     }
 
     private fun initViews() {
