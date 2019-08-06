@@ -3,4 +3,5 @@
     <dimen name="textSurveyTitle">36sp</dimen>
     <dimen name="textSurveyDescription">24sp</dimen>
     <dimen name="listSurveyTextPadding">36dp</dimen>
+    <dimen name="indicator_size">18dp</dimen>
 </resources>

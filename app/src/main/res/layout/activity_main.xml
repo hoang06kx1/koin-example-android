@@ -18,10 +18,16 @@
 
     <me.relex.circleindicator.CircleIndicator3
         android:id="@+id/indicator"
-        android:layout_width="24dp"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_marginEnd="8dp"
+        app:ci_drawable="@drawable/indicator_dot_selected"
+        app:ci_drawable_unselected="@drawable/indicator_dot"
+        app:ci_height="@dimen/indicator_size"
+        app:ci_width="@dimen/indicator_size"
+        app:ci_margin="8dp"
         app:ci_orientation="vertical"
+        app:ci_animator="@animator/indicator_no_animator"
         app:layout_constraintEnd_toEndOf="@+id/pager_surveys" />
 
 
