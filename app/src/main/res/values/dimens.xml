@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="text_survey_title">36sp</dimen>
+    <dimen name="text_survey_description">24sp</dimen>
+    <dimen name="list_survey_text_padding">36dp</dimen>
+    <dimen name="indicator_size">18dp</dimen>
+    <dimen name="text_toolbar_title">28sp</dimen>
+    <dimen name="button_toolbar">48dp</dimen>
+    <dimen name="toolbar_min_height">56dp</dimen>
+    <dimen name="button_side_padding">24dp</dimen>
+    <dimen name="button_top_bottom_padding">12dp</dimen>
+</resources>

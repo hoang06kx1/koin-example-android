@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">Survey</string>
+    <string name="unauthorized_user">Unauthorised User</string>
+    <string name="forbidden">Request is forbidden</string>
+    <string name="internal_server_error">Internal Server Error</string>
+    <string name="wrong_data_format">Wrong data format</string>
+    <string name="bad_request">Bad Request</string>
+    <string name="no_internet">No Internet Connection</string>
+    <string name="back_again_to_exit">Press back again to exit</string>
+    <string name="survey_cap">SURVEY</string>
+    <string name="take_the_survey">Take the survey</string>
 </resources>

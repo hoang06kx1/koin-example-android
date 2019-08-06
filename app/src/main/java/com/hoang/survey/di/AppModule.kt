@@ -11,12 +11,14 @@ import com.hoang.survey.api.SurveyServiceApi
 import com.hoang.survey.authentication.AccessTokenAuthenticator
 import com.hoang.survey.authentication.AccessTokenProvider
 import com.hoang.survey.authentication.SurveyRepositoryHolder
+import com.hoang.survey.listsurveys.MainActivityViewModel
 import com.hoang.survey.repository.SurveyRepository
 import com.hoang.survey.repository.SurveyRepositoryImpl
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidApplication
+import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
@@ -32,6 +34,7 @@ val testableModule = module {
     single { providesOkHttpClient(accessTokenProvider = get()) }
     single { provideGson() }
     single { AccessTokenProvider.getInstance(pref = get(), secretKey = DeviceUtils.getAndroidID()) }
+    viewModel { MainActivityViewModel(get()) }
 }
 
 val frameworkModule = module {
