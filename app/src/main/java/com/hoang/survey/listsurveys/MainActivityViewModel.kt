@@ -13,9 +13,9 @@ import retrofit2.HttpException
 
 class MainActivityViewModel(private val surveyRepository: SurveyRepository) : BaseViewModel() {
 
-    val INITIAL_LOAD_MAX_REQUEST = 2     // should be a reasonable numbers, not max integer :D
+    val INITIAL_LOAD_REQUESTS = 2  // number of api requests should be called for first loading. Should be a reasonable numbers, not max integer :D
     val PER_PAGE_ITEMS = 4
-    val OFFSET_TO_LOAD_MORE = 2
+    val OFFSET_TO_LOAD_MORE = 2  // Identify when trigger loading more data
 
     private val _surveysLiveData = MutableLiveData<List<SurveyItemResponse>>()
     val surveysLiveData: LiveData<List<SurveyItemResponse>> = _surveysLiveData
@@ -32,7 +32,7 @@ class MainActivityViewModel(private val surveyRepository: SurveyRepository) : Ba
      */
     fun getSurveysLazy() {
         hasMoreToLoad = true
-        Flowable.range(1, INITIAL_LOAD_MAX_REQUEST)
+        Flowable.range(1, INITIAL_LOAD_REQUESTS)
             .concatMap { surveyRepository.getSurveys(it, PER_PAGE_ITEMS).toFlowable() }
             .takeUntil {
                 hasMoreToLoad = !(it.isEmpty() || it.size < PER_PAGE_ITEMS)
