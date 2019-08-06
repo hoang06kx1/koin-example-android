@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import com.hoang.survey.api.ApiResponse
 import com.hoang.survey.api.SurveyItemResponse
 import com.hoang.survey.base.BaseViewModel
-import com.hoang.survey.repository.SurveyRepository
+import com.hoang.survey.api.SurveyRepository
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.addTo

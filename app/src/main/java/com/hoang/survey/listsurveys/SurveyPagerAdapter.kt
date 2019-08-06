@@ -30,6 +30,10 @@ class SurveyPagerAdapter : RecyclerView.Adapter<SurveyViewHolder>() {
         this.data = newData
         notifyDataSetChanged()
     }
+
+    fun getItem(position: Int): SurveyItemResponse {
+        return data[position]
+    }
 }
 
 class SurveyViewHolder constructor(private val surveyView: SurveyView) : RecyclerView.ViewHolder(surveyView.view) {

@@ -44,6 +44,7 @@
 
     <Button
         style="@style/ButtonHome"
+        android:id="@+id/bt_take_survey"
         android:textAllCaps="false"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"

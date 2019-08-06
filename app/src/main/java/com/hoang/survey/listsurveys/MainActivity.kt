@@ -9,6 +9,7 @@ import com.hoang.survey.base.ViewExt.Companion.CLICK_THROTTLE_TIME
 import com.hoang.survey.base.observeApiErrorMessageFromViewModel
 import com.hoang.survey.base.observeLoadingFromViewModel
 import com.hoang.survey.base.toastInfoLong
+import com.hoang.survey.surveydetail.SurveyDetailActivity
 import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.addTo
@@ -47,6 +48,10 @@ class MainActivity : BaseActivity() {
         })
         bt_refresh.clicks().throttleFirst(CLICK_THROTTLE_TIME, TimeUnit.SECONDS, AndroidSchedulers.mainThread()).subscribe {
             mainActivityViewModel.refreshSurvey()
+        }.addTo(disposables)
+        bt_take_survey.clicks().throttleFirst(CLICK_THROTTLE_TIME, TimeUnit.SECONDS, AndroidSchedulers.mainThread()).subscribe {
+            val currentItem = (pager_surveys.adapter as SurveyPagerAdapter).getItem(pager_surveys.currentItem)
+            startActivity(SurveyDetailActivity.getIntent(this, currentItem))
         }.addTo(disposables)
     }
 

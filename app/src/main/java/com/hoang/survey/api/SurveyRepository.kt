@@ -1,7 +1,5 @@
-package com.hoang.survey.repository
+package com.hoang.survey.api
 
-import com.hoang.survey.api.SurveyItemResponse
-import com.hoang.survey.api.SurveyServiceApi
 import com.hoang.survey.authentication.TokenResponse
 import io.reactivex.Single
 import retrofit2.Call
@@ -12,7 +10,8 @@ interface SurveyRepository {
     fun refreshToken(): Call<TokenResponse>
 }
 
-class SurveyRepositoryImpl(private val surveyServiceApi: SurveyServiceApi, private val refreshTokenUrl: String) : SurveyRepository {
+class SurveyRepositoryImpl(private val surveyServiceApi: SurveyServiceApi, private val refreshTokenUrl: String) :
+    SurveyRepository {
     override fun getAllSurveys(): Single<List<SurveyItemResponse>> {
         return surveyServiceApi.getAllSurveys()
     }

@@ -12,8 +12,8 @@ import com.hoang.survey.authentication.AccessTokenAuthenticator
 import com.hoang.survey.authentication.AccessTokenProvider
 import com.hoang.survey.authentication.SurveyRepositoryHolder
 import com.hoang.survey.listsurveys.MainActivityViewModel
-import com.hoang.survey.repository.SurveyRepository
-import com.hoang.survey.repository.SurveyRepositoryImpl
+import com.hoang.survey.api.SurveyRepository
+import com.hoang.survey.api.SurveyRepositoryImpl
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -60,7 +60,10 @@ fun providesRetrofitAdapter(gson: Gson, httpClient: OkHttpClient, endPoint: Stri
     // inject survey repository for refresh token
     if (SurveyRepositoryHolder.getInstance().surveyRepository == null) {
         SurveyRepositoryHolder.getInstance().surveyRepository =
-            SurveyRepositoryImpl(retrofit.create(SurveyServiceApi::class.java), refreshTokenEndpoint)
+            SurveyRepositoryImpl(
+                retrofit.create(SurveyServiceApi::class.java),
+                refreshTokenEndpoint
+            )
     }
     return retrofit
 }
@@ -92,7 +95,10 @@ fun providesOkHttpClient(accessTokenProvider: AccessTokenProvider): OkHttpClient
 
 fun provideSurveyRepositoryImpl(retrofit: Retrofit, refreshTokenEndpoint: String): SurveyRepository {
     if (SurveyRepositoryHolder.getInstance().surveyRepository == null) {
-        val surveyRepository = SurveyRepositoryImpl(retrofit.create(SurveyServiceApi::class.java), refreshTokenEndpoint)
+        val surveyRepository = SurveyRepositoryImpl(
+            retrofit.create(SurveyServiceApi::class.java),
+            refreshTokenEndpoint
+        )
         SurveyRepositoryHolder.getInstance().surveyRepository = surveyRepository
     }
     return SurveyRepositoryHolder.getInstance().surveyRepository!!
