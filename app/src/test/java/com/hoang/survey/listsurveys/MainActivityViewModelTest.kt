@@ -3,6 +3,8 @@ package com.hoang.survey.listsurveys
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.blankj.utilcode.util.Utils
+import com.google.gson.JsonParseException
+import com.google.gson.JsonSyntaxException
 import com.hoang.survey.R
 import com.hoang.survey.repository.SurveyRepository
 import com.hoang.survey.testutil.RxImmediateSchedulerRule
@@ -68,14 +70,31 @@ class MainActivityViewModelTest {
         mainActivityViewModel.apiErrorMessage.value `should equal` Utils.getApp().getString(R.string.bad_request)
     }
 
+    @Test
+    fun `Test Json error`() {
+        whenever(surveyRepository.getSurveys(any(), any())).thenReturn(
+            Single.error(
+                JsonSyntaxException("")
+            )
+        )
+        mainActivityViewModel.getSurveysLazy()
+        mainActivityViewModel.apiErrorMessage.value `should equal` Utils.getApp().getString(R.string.wrong_data_format)
+    }
+
+    @Test
+    fun `Test exception error`() {
+        whenever(surveyRepository.getSurveys(any(), any())).thenReturn(
+            Single.error(
+                Exception("Random exception")
+            )
+        )
+        mainActivityViewModel.getSurveysLazy()
+        mainActivityViewModel.apiErrorMessage.value `should equal` "Random exception"
+    }
+
     private fun stubHttpError(code: Int) {
         val dump = "application/json"
-        whenever(
-            surveyRepository.getSurveys(
-                any(),
-                any()
-            )
-        ).thenReturn(
+        whenever(surveyRepository.getSurveys(any(), any())).thenReturn(
             Single.error(
                 HttpException(
                     Response.error<ResponseBody>(
