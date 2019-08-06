@@ -8,6 +8,7 @@ import com.hoang.survey.base.observeApiErrorMessageFromViewModel
 import com.hoang.survey.base.observeLoadingFromViewModel
 import com.hoang.survey.base.toastInfoLong
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.toolbar_main.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
 class MainActivity : BaseActivity() {
@@ -26,6 +27,7 @@ class MainActivity : BaseActivity() {
     }
 
     private fun initViews() {
+        setSupportActionBar(toolbar)
         pager_surveys.offscreenPageLimit = 3
         pager_surveys.adapter = SurveyPagerAdapter()
         indicator.setViewPager(pager_surveys)

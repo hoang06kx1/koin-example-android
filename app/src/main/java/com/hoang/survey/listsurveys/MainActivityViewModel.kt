@@ -13,8 +13,8 @@ class MainActivityViewModel(private val surveyRepository: SurveyRepository): Bas
     private val _surveysLiveData = MutableLiveData<List<SurveyItemResponse>>()
     val surveysLiveData: LiveData<List<SurveyItemResponse>> = _surveysLiveData
 
-    fun getSurveys(page: Int, perPage: Int) {
-        surveyRepository.getSurveys(page, perPage)
+    fun getSurveys() {
+        surveyRepository.getAllSurveys()
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeWith(object: FullCallbackWrapper<List<SurveyItemResponse>>() {
                 override fun onResponse(response: ApiResponse<List<SurveyItemResponse>>) {

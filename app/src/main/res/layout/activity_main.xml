@@ -6,29 +6,41 @@
     android:layout_height="match_parent"
     tools:context=".listsurveys.MainActivity">
 
-    <androidx.viewpager2.widget.ViewPager2
+    <include
+        android:id="@+id/toolbar_layout"
+        layout="@layout/toolbar_main"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/pager_surveys"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbar_layout" />
 
     <me.relex.circleindicator.CircleIndicator3
         android:id="@+id/indicator"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        app:ci_animator="@animator/indicator_no_animator"
         app:ci_drawable="@drawable/indicator_dot_selected"
         app:ci_drawable_unselected="@drawable/indicator_dot"
         app:ci_height="@dimen/indicator_size"
-        app:ci_width="@dimen/indicator_size"
         app:ci_margin="8dp"
         app:ci_orientation="vertical"
-        app:ci_animator="@animator/indicator_no_animator"
-        app:layout_constraintEnd_toEndOf="@+id/pager_surveys" />
+        app:ci_width="@dimen/indicator_size"
+        app:layout_constraintBottom_toBottomOf="@+id/pager_surveys"
+        app:layout_constraintEnd_toEndOf="@+id/pager_surveys"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar_layout" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
