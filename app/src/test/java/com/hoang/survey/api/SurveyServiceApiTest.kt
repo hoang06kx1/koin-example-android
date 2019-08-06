@@ -1,14 +1,12 @@
 package com.hoang.survey.api
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.hoang.survey.enqueueFromFile
-import com.hoang.survey.takeRequestWithTimeout
+import com.hoang.survey.testutil.enqueueFromFile
+import com.hoang.survey.testutil.takeRequestWithTimeout
 import okhttp3.mockwebserver.MockWebServer
 import org.amshove.kluent.`should equal`
 import org.amshove.kluent.`should not be`
 import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4

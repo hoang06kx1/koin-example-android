@@ -6,7 +6,7 @@ import android.content.SharedPreferences
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
-import com.hoang.survey.resetSingleton
+import com.hoang.survey.testutil.resetSingleton
 import com.nhaarman.mockito_kotlin.*
 import com.scottyab.aescrypt.AESCrypt
 import org.junit.Before
