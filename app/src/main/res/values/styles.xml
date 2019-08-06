@@ -25,11 +25,11 @@
     </style>
 
     <style name="TextAppearanceTitle" parent="TextAppearance.AppCompat.Title">
-        <item name="android:textSize">@dimen/textSurveyTitle</item>
+        <item name="android:textSize">@dimen/text_survey_title</item>
     </style>
 
     <style name="TextAppearanceDescription" parent="TextAppearance.AppCompat.Caption">
-        <item name="android:textSize">@dimen/textSurveyDescription</item>
+        <item name="android:textSize">@dimen/text_survey_description</item>
         <item name="android:textColor">@color/text_white_light_transparent</item>
     </style>
 </resources>
