@@ -38,19 +38,13 @@ open class BaseViewModel : ViewModel(), KoinComponent {
     abstract inner class RawCallbackWrapper<K> : DisposableSingleObserver<K>() {
         protected abstract fun onResponse(response: ApiResponse<K>)
 
-        override fun onStart() {
-            _loading.value = true
-        }
-
         override fun onSuccess(t: K) {
             onResponse(ApiResponse(t, null))
-            _loading.value = false
         }
 
         override fun onError(e: Throwable) {
             e.printStackTrace()
             handleApiError(e)
-            _loading.value = false
             onResponse(ApiResponse(null, e))
         }
     }
@@ -93,7 +87,7 @@ open class BaseViewModel : ViewModel(), KoinComponent {
         } else if (error is JsonSyntaxException) {
             apiErrorMessage.value = Utils.getApp().getString(R.string.wrong_data_format)
         } else {
-            apiErrorMessage.value = error.message
+            apiErrorMessage.value = error.message?: error.toString()
         }
 
     }

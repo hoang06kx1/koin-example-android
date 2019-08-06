@@ -1,7 +1,6 @@
 package com.hoang.survey.authentication
 
-import com.hoang.survey.di.REFRESH_TOKEN_ENDPOINT
-import com.hoang.survey.repository.SurveyRepository
+import com.hoang.survey.api.SurveyRepository
 import okhttp3.Authenticator
 import okhttp3.Request
 import okhttp3.Response
