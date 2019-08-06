@@ -56,6 +56,9 @@ class MainActivityViewModel(private val surveyRepository: SurveyRepository) : Ba
             }).addTo(disposables)
     }
 
+    /***
+     * Load more item when user slide to near end
+     */
     fun handleLoadMoreSurveys(currentItemPosition: Int) {
         if (!isLoadingSurveys && _surveysLiveData.value!!.size - currentItemPosition <= OFFSET_TO_LOAD_MORE && hasMoreToLoad) {
             isLoadingSurveys = true
