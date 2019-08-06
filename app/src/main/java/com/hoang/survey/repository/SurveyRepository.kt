@@ -1,5 +1,7 @@
-package com.hoang.survey.api
+package com.hoang.survey.repository
 
+import com.hoang.survey.api.SurveyItemResponse
+import com.hoang.survey.api.SurveyServiceApi
 import com.hoang.survey.authentication.TokenResponse
 import io.reactivex.Single
 import retrofit2.Call
