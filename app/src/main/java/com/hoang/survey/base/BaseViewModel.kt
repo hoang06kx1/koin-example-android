@@ -9,6 +9,7 @@ import com.hoang.survey.R
 import com.hoang.survey.api.ApiResponse
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.observers.DisposableObserver
+import io.reactivex.observers.DisposableSingleObserver
 import org.koin.core.KoinComponent
 import retrofit2.HttpException
 import retrofit2.Response
@@ -34,45 +35,45 @@ open class BaseViewModel : ViewModel(), KoinComponent {
     /**
      * Only convert Retrofit callback to ApiResponse and log exception if thrown
      */
-    abstract inner class RawCallbackWrapper<K> : DisposableObserver<Response<K>>() {
-        protected abstract fun onSuccess(response: ApiResponse<K>)
+    abstract inner class RawCallbackWrapper<K> : DisposableSingleObserver<K>() {
+        protected abstract fun onResponse(response: ApiResponse<K>)
 
-        override fun onNext(t: Response<K>) {
-            if (t.isSuccessful) {
-                onSuccess(ApiResponse(t.body(), null))
-            }
-        }
-
-        override fun onError(e: Throwable) {
-            e.printStackTrace()
-            onSuccess(ApiResponse(null, e))
-        }
-    }
-
-    /**
-     * Process Retrofit callback with auto show/hide loading indicator and error notification
-     */
-    abstract inner class FullCallbackWrapper<K> : DisposableObserver<Response<K>>() {
-        protected abstract fun onSuccess(response: ApiResponse<K>)
         override fun onStart() {
             _loading.value = true
         }
 
-        override fun onNext(t: Response<K>) {
-            if (t.isSuccessful) {
-                onSuccess(ApiResponse(t.body(), null))
-            }
+        override fun onSuccess(t: K) {
+            onResponse(ApiResponse(t, null))
+            _loading.value = false
         }
 
         override fun onError(e: Throwable) {
             e.printStackTrace()
             handleApiError(e)
             _loading.value = false
-            onSuccess(ApiResponse(null, e))
+            onResponse(ApiResponse(null, e))
+        }
+    }
+
+    /**
+     * Process Retrofit callback with auto show/hide loading indicator and error notification
+     */
+    abstract inner class FullCallbackWrapper<K> : DisposableSingleObserver<K>() {
+        protected abstract fun onResponse(response: ApiResponse<K>)
+        override fun onStart() {
+            _loading.value = true
         }
 
-        override fun onComplete() {
+        override fun onSuccess(t: K) {
+            onResponse(ApiResponse(t, null))
             _loading.value = false
+        }
+
+        override fun onError(e: Throwable) {
+            e.printStackTrace()
+            handleApiError(e)
+            _loading.value = false
+            onResponse(ApiResponse(null, e))
         }
     }
 

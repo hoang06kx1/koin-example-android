@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.bumptech.glide.Glide
+import com.hoang.survey.R
 import es.dmoral.toasty.Toasty
 
 fun Activity.toastErrorShort(stringId: Int) {
@@ -71,7 +72,11 @@ fun BaseActivity.observeApiErrorMessageFromViewModel(viewModel: BaseViewModel) {
     })
 }
 
-fun ImageView.loadImage(url: String) {
+fun ImageView.loadImage(url: String, errorPlaceHolder: Int? = null) {
     if (this.context is Fragment || this.context is Activity)
-        Glide.with(this.context).load(url).into(this)
+        if (errorPlaceHolder != null) {
+            Glide.with(this.context).load(url).error(errorPlaceHolder).into(this)
+        } else {
+            Glide.with(this.context).load(url).into(this)
+        }
 }

@@ -32,12 +32,8 @@ open class BaseActivity: AppCompatActivity() {
         return loadingDialog?.isShowing == true
     }
 
-    fun initLoadingObserve() {
-
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onPause() {
+        super.onPause()
         hideLoadingDialog()
     }
 }

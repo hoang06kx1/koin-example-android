@@ -28,6 +28,7 @@ class SurveyPagerAdapter : RecyclerView.Adapter<SurveyViewHolder>() {
 
     fun submitData(newData: List<SurveyItemResponse>) {
         this.data = newData
+        notifyDataSetChanged()
     }
 }
 
@@ -52,7 +53,7 @@ class SurveyView(val activity: MainActivity, container: ViewGroup) {
     fun bind(survey: SurveyItemResponse) {
         tvTitle.text = survey.tille
         tvDescription.text = survey.description
-        ivSurvey.loadImage(survey.coverImageUrlBig)
+        ivSurvey.loadImage(survey.coverImageUrlBig, R.drawable.placeholder)
     }
 }
 

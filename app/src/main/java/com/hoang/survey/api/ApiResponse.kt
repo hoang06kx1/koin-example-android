@@ -2,10 +2,7 @@ package com.hoang.survey.api
 
 import com.google.gson.annotations.SerializedName
 
-data class ApiResponse<T>(val response: T?, val throwable: Throwable?) {
-    var result = response
-    var error = throwable
-}
+data class ApiResponse<T>(val result: T?, val throwable: Throwable?)
 
 data class SurveyItemResponse(
     @SerializedName("id")
