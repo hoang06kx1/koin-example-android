@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="textSurveyTitle">28sp</dimen>
-    <dimen name="textSurveyDescription">22sp</dimen>
+    <dimen name="textSurveyTitle">36sp</dimen>
+    <dimen name="textSurveyDescription">24sp</dimen>
+    <dimen name="listSurveyTextPadding">36dp</dimen>
 </resources>

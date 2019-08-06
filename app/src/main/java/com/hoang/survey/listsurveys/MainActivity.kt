@@ -28,6 +28,8 @@ class MainActivity : BaseActivity() {
     private fun initViews() {
         pager_surveys.offscreenPageLimit = 3
         pager_surveys.adapter = SurveyPagerAdapter()
+        indicator.setViewPager(pager_surveys)
+        (pager_surveys.adapter as SurveyPagerAdapter).registerAdapterDataObserver(indicator.adapterDataObserver)
     }
 
     var lastBackPressTime = 0L
