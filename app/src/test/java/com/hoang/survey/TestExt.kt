@@ -1,9 +1,10 @@
 package com.hoang.survey
 
+import androidx.lifecycle.LiveData
+import com.jraska.livedata.TestObserver
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
-import okio.Okio
 import okio.buffer
 import okio.source
 import java.util.concurrent.TimeUnit
@@ -30,4 +31,8 @@ fun <T> resetSingleton(klass: Class<T>) {
     instance.isAccessible = true
     instance.set(null, null)
     instance.set(null, null)
+}
+
+fun <T> LiveData<T>.test(): TestObserver<T> {
+    return TestObserver.test(this)
 }

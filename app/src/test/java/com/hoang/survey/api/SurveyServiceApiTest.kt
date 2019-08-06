@@ -18,9 +18,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 @RunWith(JUnit4::class)
 class SurveyServiceApiTest {
-    @Rule
-    @JvmField
-    val instantExecutorRule = InstantTaskExecutorRule()
 
     private lateinit var mockWebServer: MockWebServer
     private lateinit var service: SurveyServiceApi
