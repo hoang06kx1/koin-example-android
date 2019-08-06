@@ -56,6 +56,10 @@ class MainActivityViewModel(private val surveyRepository: SurveyRepository) : Ba
             }).addTo(disposables)
     }
 
+    /**
+     * Refresh surveys which are displayed on the screen.
+     * If has no survey, reload all initial surveys
+     */
     fun refreshSurvey() {
         if (surveysLiveData.value!!.isEmpty()) { // first load failed, reload data
             getSurveysLazy()
