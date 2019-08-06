@@ -1,8 +1,11 @@
 package com.hoang.survey.base
 
 import android.app.Activity
+import android.widget.ImageView
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import com.bumptech.glide.Glide
 import es.dmoral.toasty.Toasty
 
 fun Activity.toastErrorShort(stringId: Int) {
@@ -10,7 +13,7 @@ fun Activity.toastErrorShort(stringId: Int) {
 }
 
 fun Activity.toastErrorShort(message: String) {
-    Toasty.success(this,  message, Toast.LENGTH_SHORT, true).show()
+    Toasty.success(this, message, Toast.LENGTH_SHORT, true).show()
 }
 
 fun Activity.toastErrorLong(stringId: Int) {
@@ -26,11 +29,11 @@ fun Activity.toastSuccessShort(stringId: Int) {
 }
 
 fun Activity.toastSuccessShort(message: String) {
-    Toasty.success(this,  message, Toast.LENGTH_SHORT, true).show()
+    Toasty.success(this, message, Toast.LENGTH_SHORT, true).show()
 }
 
 fun Activity.toastSuccessLong(stringId: Int) {
-    Toasty.success(this,stringId, Toast.LENGTH_LONG, true).show()
+    Toasty.success(this, stringId, Toast.LENGTH_LONG, true).show()
 }
 
 fun Activity.toastSuccessLong(message: String) {
@@ -38,7 +41,7 @@ fun Activity.toastSuccessLong(message: String) {
 }
 
 fun Activity.toastInfoShort(stringId: Int) {
-    Toasty.info(this,  stringId, Toast.LENGTH_SHORT, true).show()
+    Toasty.info(this, stringId, Toast.LENGTH_SHORT, true).show()
 }
 
 fun Activity.toastInfoShort(message: String) {
@@ -46,11 +49,11 @@ fun Activity.toastInfoShort(message: String) {
 }
 
 fun Activity.toastInfoLong(stringId: Int) {
-    Toasty.info(this,stringId, Toast.LENGTH_LONG, true).show()
+    Toasty.info(this, stringId, Toast.LENGTH_LONG, true).show()
 }
 
 fun Activity.toastInfoLong(message: String) {
-    Toasty.info(this,message, Toast.LENGTH_LONG, true).show()
+    Toasty.info(this, message, Toast.LENGTH_LONG, true).show()
 }
 
 fun BaseActivity.observeLoadingFromViewModel(viewModel: BaseViewModel) {
@@ -66,4 +69,9 @@ fun BaseActivity.observeApiErrorMessageFromViewModel(viewModel: BaseViewModel) {
     viewModel.apiErrorMessage.observe(this, Observer { message ->
         toastErrorLong(message)
     })
+}
+
+fun ImageView.loadImage(url: String) {
+    if (this.context is Fragment || this.context is Activity)
+        Glide.with(this.context).load(url).into(this)
 }
