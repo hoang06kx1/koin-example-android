@@ -118,7 +118,7 @@ class MainActivityViewModelTest {
     }
 
     @Test
-    fun `When lazy load surveys at the first time, stop fire more requests when all available surveys are loaded`() {
+    fun `When lazy load surveys at the first time, stop firing more requests when all available surveys are loaded`() {
         // Set number of initial load requests
         val requestsNumber = mainActivityViewModel.javaClass.getDeclaredField("INITIAL_LOAD_REQUESTS")
         requestsNumber.isAccessible = true
@@ -142,6 +142,62 @@ class MainActivityViewModelTest {
     }
 
     @Test
+    fun `When user scroll to the end, should load more data`() {
+        val sizeShouldLoad = mainActivityViewModel.INITIAL_LOAD_REQUESTS * mainActivityViewModel.PER_PAGE_ITEMS
+        mainActivityViewModel.getSurveysLazy()
+        mainActivityViewModel.surveysLiveData.value!!.size `should equal` sizeShouldLoad
+        val observer = mock<Observer<List<SurveyItemResponse>>>()
+        mainActivityViewModel.surveysLiveData.observeForever(observer) // first onchanged fired (1)
+
+        var offset = sizeShouldLoad - mainActivityViewModel.OFFSET_TO_LOAD_MORE - 1 // not near enough to load
+        mainActivityViewModel.handleLoadMoreSurveys(offset)
+        mainActivityViewModel.surveysLiveData.value!!.size `should equal` sizeShouldLoad
+
+        offset++ // trigger load more now
+        mainActivityViewModel.handleLoadMoreSurveys(offset) // second onchanged fired (2)
+        mainActivityViewModel.surveysLiveData.value!!.size `should equal` sizeShouldLoad + mainActivityViewModel.PER_PAGE_ITEMS
+
+        offset++ // not near end anymore, don't trigger
+        mainActivityViewModel.handleLoadMoreSurveys(offset) // don't trigger load more (2)
+        verify(observer, times(2)).onChanged(any())
+    }
+
+    @Test
+    fun `Do not load more data when user's current page is 0`() {
+        val observer = mock<Observer<List<SurveyItemResponse>>>()
+        mainActivityViewModel.surveysLiveData.observeForever(observer) // first onchanged fired
+        mainActivityViewModel.handleLoadMoreSurveys(0)
+        verify(observer, times(1)).onChanged(any())
+    }
+
+    @Test
+    fun `Do not load more data if there is no more surveys available`() {
+        val sizeShouldLoad = mainActivityViewModel.INITIAL_LOAD_REQUESTS * mainActivityViewModel.PER_PAGE_ITEMS
+
+        // Set number of initial load requests
+        val requestsNumber = mainActivityViewModel.javaClass.getDeclaredField("INITIAL_LOAD_REQUESTS")
+        requestsNumber.isAccessible = true
+        requestsNumber.set(mainActivityViewModel, 5)
+        mainActivityViewModel.INITIAL_LOAD_REQUESTS `should equal` 5
+
+        // Stub
+        reset(surveyRepository)
+        whenever(surveyRepository.getSurveys(any(), any()))
+            .thenReturn(Single.just(createFakeListSurveys(mainActivityViewModel.PER_PAGE_ITEMS)))
+            .thenReturn(Single.just(createFakeListSurveys(mainActivityViewModel.PER_PAGE_ITEMS)))
+            .thenReturn(Single.just(listOf(fakeSurvey))) // should stop request after 3 times
+            .thenReturn(Single.just(listOf()))
+
+        val observer = mock<Observer<List<SurveyItemResponse>>>()
+        mainActivityViewModel.surveysLiveData.observeForever(observer) // first onchanged fired (1)
+        mainActivityViewModel.getSurveysLazy() // onchanged fires 3 times (4)
+        mainActivityViewModel.handleLoadMoreSurveys(mainActivityViewModel.surveysLiveData.value!!.size - 1) // should not trigger load more, there no more data
+
+        mainActivityViewModel.surveysLiveData.value!!.size `should equal` (mainActivityViewModel.PER_PAGE_ITEMS * 2 + 1)
+        verify(observer, times(4)).onChanged(any())
+    }
+
+    @Test
     fun `When refresh surveys, should call first lazy load if there is no data is displaying`() {
         val sizeShouldLoad = mainActivityViewModel.INITIAL_LOAD_REQUESTS * mainActivityViewModel.PER_PAGE_ITEMS
         mainActivityViewModel.surveysLiveData.value!!.size `should equal` 0
@@ -156,11 +212,17 @@ class MainActivityViewModelTest {
         val observer = mock<Observer<List<SurveyItemResponse>>>()
         mainActivityViewModel.getSurveysLazy()
         mainActivityViewModel.surveysLiveData.value!!.size `should equal` sizeShouldLoad
-        mainActivityViewModel.surveysLiveData.observeForever(observer)
-        mainActivityViewModel.refreshSurvey()
+        mainActivityViewModel.surveysLiveData.observeForever(observer) // first onChanged (1)
+
+        mainActivityViewModel.refreshSurvey() // second onChanged (2)
         val sizeShouldRefresh = sizeShouldLoad
         mainActivityViewModel.surveysLiveData.value!!.size `should equal` sizeShouldRefresh
         verify(observer, times(2)).onChanged(any()) // changed 2 times: first lazy load and later refresh
+
+        mainActivityViewModel.handleLoadMoreSurveys(sizeShouldLoad - 1) // third onChanged (3)
+        mainActivityViewModel.refreshSurvey() // fourth onChanged (4)
+        verify(observer, times(4)).onChanged(any())
+        mainActivityViewModel.surveysLiveData.value!!.size `should equal` sizeShouldLoad + mainActivityViewModel.PER_PAGE_ITEMS
     }
 
     @After

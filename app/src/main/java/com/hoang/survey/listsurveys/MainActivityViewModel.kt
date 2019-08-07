@@ -33,7 +33,7 @@ class MainActivityViewModel(private val surveyRepository: SurveyRepository) : Ba
     fun getSurveysLazy() {
         hasMoreToLoad = true
         Flowable.range(1, INITIAL_LOAD_REQUESTS)
-            .concatMap { surveyRepository.getSurveys(it, PER_PAGE_ITEMS).toFlowable() }
+            .concatMap { surveyRepository.getSurveys(it, PER_PAGE_ITEMS).toFlowable() }  // concatMap here gives better performance comparing to concatMapEager
             .takeUntil {
                 hasMoreToLoad = !(it.isEmpty() || it.size < PER_PAGE_ITEMS)
                 !hasMoreToLoad
@@ -80,7 +80,7 @@ class MainActivityViewModel(private val surveyRepository: SurveyRepository) : Ba
      * Load more item when user slide to near end
      */
     fun handleLoadMoreSurveys(currentItemPosition: Int) {
-        if (!isLoadingSurveys && _surveysLiveData.value!!.size - currentItemPosition <= OFFSET_TO_LOAD_MORE && hasMoreToLoad) {
+        if (!isLoadingSurveys && _surveysLiveData.value!!.size - currentItemPosition <= OFFSET_TO_LOAD_MORE && hasMoreToLoad && currentItemPosition != 0) {
             isLoadingSurveys = true
             val nextPageToLoad = (_surveysLiveData.value!!.size / PER_PAGE_ITEMS) + 1
             surveyRepository.getSurveys(nextPageToLoad, PER_PAGE_ITEMS)
