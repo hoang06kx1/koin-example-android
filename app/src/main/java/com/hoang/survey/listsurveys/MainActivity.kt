@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
 import com.hoang.survey.R
+import com.hoang.survey.api.SurveyItemResponse
 import com.hoang.survey.base.BaseActivity
 import com.hoang.survey.base.ViewExt.Companion.CLICK_THROTTLE_TIME
 import com.hoang.survey.base.observeApiErrorMessageFromViewModel
@@ -51,7 +52,7 @@ class MainActivity : BaseActivity() {
         }.addTo(disposables)
         bt_take_survey.clicks().throttleFirst(CLICK_THROTTLE_TIME, TimeUnit.SECONDS, AndroidSchedulers.mainThread()).subscribe {
             val currentItem = (pager_surveys.adapter as SurveyPagerAdapter).getItem(pager_surveys.currentItem)
-            startActivity(SurveyDetailActivity.getIntent(this, currentItem))
+            startActivity(SurveyDetailActivity.getIntent(this, currentItem?: SurveyItemResponse()))
         }.addTo(disposables)
     }
 

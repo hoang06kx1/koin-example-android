@@ -31,8 +31,9 @@ class SurveyPagerAdapter : RecyclerView.Adapter<SurveyViewHolder>() {
         notifyDataSetChanged()
     }
 
-    fun getItem(position: Int): SurveyItemResponse {
-        return data[position]
+    fun getItem(position: Int): SurveyItemResponse? {
+        return if (data.size > position) data[position]
+        else null
     }
 }
 
