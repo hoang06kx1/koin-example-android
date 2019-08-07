@@ -1,8 +1,8 @@
 # nbl-survey
-> Just another endless surveys...
+> Just other endless surveys...
 
-This is an demo appliation demonstrating how a good coverting test could help you in writing less error-prone code.
-Totally written in Kotlin. (**Java**? sorry, I'm tired of null check)
+This is a demo application demonstrating how a good covering test could help you in writing less error-prone code.
+Written in Kotlin. (**Java**? sorry, I'm tired of null check)
 
 ## Tools
  - DI: Koin (*should stick back to Dagger2..explain below*)
@@ -25,27 +25,27 @@ Totally written in Kotlin. (**Java**? sorry, I'm tired of null check)
 
 ### Koin
 
-Work pretty well, add and wire dependencies smooth and intuitive at first sight. When come to writing test, everything just collapse suddenly. Can not figure out how to override some dependency in test environment plus with lacking and ambiguous document makes me feel regret about choosing it over Dagger2.
+Work pretty well, add and wire dependencies smooth and intuitive at first sight. When come to writing test, everything just collapses suddenly. Can not figure out how to override some dependency in test environment plus with lacking and ambiguous document makes me feel regret about choosing it over Dagger2.
 
-And one important thing: Dagger2 error is notified at compiler time, but Koin is at runtime. With Koin, you need to check your app more carefully.
+And one important thing: Dagger2 error is notified at compile-time, but Koin is at runtime. With Koin, you need to check your app more carefully.
 
-And circular dependency seems a problem. I used an *Holder* as workaround.
+And circular dependency seems a problem. I used a *Holder* as a workaround.
 
 ### Viewpager2
-Now you can use RecyclerView.Adapter for Viewpager. Awesome. Google should had shipped this feature with Viewpager on early days.
+Now you can use RecyclerView.Adapter for Viewpager. Awesome. Google should have shipped this feature with Viewpager on early days.
 
 ### AndroidX Test
-At last, unified API between unit test and UI test (intergration test). Test codes (unit & UI) can be put in a shared folder now. Robolectric works out of the box. Nitrogen project is worth waiting for.
+At last, 	unified API between unit test and UI test (integration-test). Test codes (unit & UI) can be put in a shared folder now. Robolectric works out of the box. Nitrogen project is worth waiting for.
 
 ### Espresso
 Boring and tricky as usual.
 
 ### MockWebServer
-Reliable and unstable at a same time. Lol.
+Reliable and unstable at the same time. Lol.
 
 ### FAQ
  - **Where is license part?**
-      - What is license? 
+      - What is the license? 
  - **Open issues and pull request?**
       - You are welcome. I love so. 
 
