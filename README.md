@@ -43,6 +43,11 @@ Boring and tricky as usual.
 ### MockWebServer
 Reliable and unstable at a same time. Lol.
 
+### FAQ
+ - **Where is license part?**
+      - What is license? 
+ - **Open issues and pull request?**
+      - You are welcome. I love so. 
 
 
 
