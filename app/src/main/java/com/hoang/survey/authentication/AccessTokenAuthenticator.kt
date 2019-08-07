@@ -1,6 +1,6 @@
 package com.hoang.survey.authentication
 
-import com.hoang.survey.api.SurveyRepository
+import com.hoang.survey.repository.SurveyRepository
 import okhttp3.Authenticator
 import okhttp3.Request
 import okhttp3.Response

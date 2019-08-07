@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import com.hoang.survey.api.ApiResponse
 import com.hoang.survey.api.SurveyItemResponse
 import com.hoang.survey.base.BaseViewModel
-import com.hoang.survey.api.SurveyRepository
+import com.hoang.survey.repository.SurveyRepository
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.addTo
@@ -13,9 +13,9 @@ import retrofit2.HttpException
 
 class MainActivityViewModel(private val surveyRepository: SurveyRepository) : BaseViewModel() {
 
-    val INITIAL_LOAD_MAX_REQUEST = 2     // should be a reasonable numbers, not max integer :D
+    val INITIAL_LOAD_REQUESTS = 2  // number of api requests should be called for first loading. Should be a reasonable numbers, not max integer :D
     val PER_PAGE_ITEMS = 4
-    val OFFSET_TO_LOAD_MORE = 2
+    val OFFSET_TO_LOAD_MORE = 2  // Identify when trigger loading more data
 
     private val _surveysLiveData = MutableLiveData<List<SurveyItemResponse>>()
     val surveysLiveData: LiveData<List<SurveyItemResponse>> = _surveysLiveData
@@ -32,8 +32,8 @@ class MainActivityViewModel(private val surveyRepository: SurveyRepository) : Ba
      */
     fun getSurveysLazy() {
         hasMoreToLoad = true
-        Flowable.range(1, INITIAL_LOAD_MAX_REQUEST)
-            .concatMap { surveyRepository.getSurveys(it, PER_PAGE_ITEMS).toFlowable() }
+        Flowable.range(1, INITIAL_LOAD_REQUESTS)
+            .concatMap { surveyRepository.getSurveys(it, PER_PAGE_ITEMS).toFlowable() }  // concatMap here gives better performance comparing to concatMapEager
             .takeUntil {
                 hasMoreToLoad = !(it.isEmpty() || it.size < PER_PAGE_ITEMS)
                 !hasMoreToLoad
@@ -80,7 +80,7 @@ class MainActivityViewModel(private val surveyRepository: SurveyRepository) : Ba
      * Load more item when user slide to near end
      */
     fun handleLoadMoreSurveys(currentItemPosition: Int) {
-        if (!isLoadingSurveys && _surveysLiveData.value!!.size - currentItemPosition <= OFFSET_TO_LOAD_MORE && hasMoreToLoad) {
+        if (!isLoadingSurveys && _surveysLiveData.value!!.size - currentItemPosition <= OFFSET_TO_LOAD_MORE && hasMoreToLoad && currentItemPosition != 0) {
             isLoadingSurveys = true
             val nextPageToLoad = (_surveysLiveData.value!!.size / PER_PAGE_ITEMS) + 1
             surveyRepository.getSurveys(nextPageToLoad, PER_PAGE_ITEMS)

@@ -12,8 +12,8 @@ import com.hoang.survey.authentication.AccessTokenAuthenticator
 import com.hoang.survey.authentication.AccessTokenProvider
 import com.hoang.survey.authentication.SurveyRepositoryHolder
 import com.hoang.survey.listsurveys.MainActivityViewModel
-import com.hoang.survey.api.SurveyRepository
-import com.hoang.survey.api.SurveyRepositoryImpl
+import com.hoang.survey.repository.SurveyRepository
+import com.hoang.survey.repository.SurveyRepositoryImpl
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor

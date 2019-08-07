@@ -6,10 +6,10 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import com.hoang.survey.di.*
-import com.hoang.survey.enqueueFromFile
-import com.hoang.survey.api.SurveyRepository
-import com.hoang.survey.resetSingleton
-import com.hoang.survey.takeRequestWithTimeout
+import com.hoang.survey.testutil.enqueueFromFile
+import com.hoang.survey.repository.SurveyRepository
+import com.hoang.survey.testutil.resetSingleton
+import com.hoang.survey.testutil.takeRequestWithTimeout
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -39,7 +39,6 @@ class AccessTokenAuthenticatorTest : KoinTest {
 
     @Before
     fun setUp() {
-        // Reset singletons
         resetSingleton(AccessTokenProvider::class.java)
         resetSingleton(SurveyRepositoryHolder::class.java)
 
