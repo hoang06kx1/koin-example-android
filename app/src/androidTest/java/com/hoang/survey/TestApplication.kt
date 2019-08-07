@@ -8,7 +8,7 @@ import androidx.test.runner.AndroidJUnitRunner
 
 class TestApplication: SurveyApplication() {
     override fun getApiEndpoint(): String {
-        return "http://127.0.0.1:8080"
+        return "http://localhost:8080/"
     }
 }
 

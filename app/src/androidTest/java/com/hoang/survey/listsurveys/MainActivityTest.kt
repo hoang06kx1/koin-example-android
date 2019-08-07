@@ -7,13 +7,12 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.espresso.intent.rule.IntentsTestRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import com.google.common.truth.Truth.assertThat
 import com.hoang.survey.R
 import com.hoang.survey.base.EspressoCountingIdlingResource
 import com.hoang.survey.surveydetail.SurveyDetailActivity
 import com.hoang.survey.testutil.enqueueFromFile
-import com.schibsted.spain.barista.assertion.BaristaVisibilityAssertions
 import com.schibsted.spain.barista.assertion.BaristaVisibilityAssertions.assertContains
-import com.schibsted.spain.barista.assertion.BaristaVisibilityAssertions.assertDisplayed
 import com.schibsted.spain.barista.interaction.BaristaClickInteractions.clickOn
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
@@ -32,21 +31,40 @@ class MainActivityTest {
 //    @JvmField
 //    val executorRule = TaskExecutorWithIdlingResourceRule()
 
-    lateinit var scenario: ActivityScenario<MainActivity>
     val mockWebServer = MockWebServer()
 
     @Before
     fun initActivity() {
         mockWebServer.start(8080)
         IdlingRegistry.getInstance().register(EspressoCountingIdlingResource.idlingResource)
-        scenario = ActivityScenario.launch(MainActivity::class.java)
     }
 
     @Test
     fun clickTakeSurveyButton_shouldNavigateToNextScreen() {
         mockWebServer.enqueueFromFile("surveys-1.json")
+        ActivityScenario.launch(MainActivity::class.java)
         clickOn(R.id.bt_take_survey)
         intended(hasComponent(SurveyDetailActivity::class.getFullName()))
+    }
+
+    @Test
+    fun clickRefreshButton_shouldUpdateSurveys() {
+        mockWebServer.enqueueFromFile("surveys-1.json")
+        mockWebServer.enqueueFromFile("surveys-1.json")
+        mockWebServer.enqueueFromFile("surveys-1.json")
+        mockWebServer.enqueueFromFile("surveys-1-refresh.json")
+        ActivityScenario.launch(MainActivity::class.java)
+        val activity = MainActivity.getInstance().get()
+
+//      Set number of initial load requests
+        val requestsNumber = activity!!.mainActivityViewModel.javaClass.getDeclaredField("INITIAL_LOAD_REQUESTS")
+        requestsNumber.isAccessible = true
+        requestsNumber.set(activity!!.mainActivityViewModel, 1) // only load one time
+        assertThat(activity!!.mainActivityViewModel.INITIAL_LOAD_REQUESTS).isEqualTo(5)
+
+        assertContains("Bangkok")
+        clickOn(R.id.bt_refresh)
+        assertContains("Danang")
     }
 
     @After

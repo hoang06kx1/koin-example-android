@@ -71,7 +71,7 @@ fun providesRetrofitAdapter(gson: Gson, httpClient: OkHttpClient, endPoint: Stri
 
 fun providesOkHttpClient(accessTokenProvider: AccessTokenProvider): OkHttpClient {
     val logInterceptor = HttpLoggingInterceptor().apply {
-        level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BASIC else HttpLoggingInterceptor.Level.NONE
+        level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
     }
 
     val tokenInterceptor = Interceptor {

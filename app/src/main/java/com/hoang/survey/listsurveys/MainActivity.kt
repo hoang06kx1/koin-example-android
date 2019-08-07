@@ -17,13 +17,22 @@ import io.reactivex.rxkotlin.addTo
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.toolbar_main.*
 import org.koin.android.viewmodel.ext.android.viewModel
+import java.lang.ref.WeakReference
 import java.util.concurrent.TimeUnit
 
 class MainActivity : BaseActivity() {
     val mainActivityViewModel: MainActivityViewModel by viewModel()
 
+    companion object {
+        private lateinit var instance: WeakReference<MainActivity>
+        fun getInstance(): WeakReference<MainActivity> { // hacky way to get Main Activiy instance for test due to error of ScenarioActivity. Don't abuse this.
+            return instance
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        instance = WeakReference(this)
         setContentView(R.layout.activity_main)
         initViews()
         observeLoadingFromViewModel(mainActivityViewModel)
