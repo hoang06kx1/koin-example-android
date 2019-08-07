@@ -2,6 +2,8 @@ package com.hoang.survey.listsurveys
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.blankj.utilcode.util.Utils
+import com.hoang.survey.SurveyApplication
 import com.hoang.survey.api.ApiResponse
 import com.hoang.survey.api.SurveyItemResponse
 import com.hoang.survey.base.BaseViewModel
@@ -13,8 +15,9 @@ import retrofit2.HttpException
 
 class MainActivityViewModel(private val surveyRepository: SurveyRepository) : BaseViewModel() {
 
-    val INITIAL_LOAD_REQUESTS = 2  // number of api requests should be called for first loading. Should be a reasonable numbers, not max integer :D
-    val PER_PAGE_ITEMS = 4
+    // Number of api requests should be called for first loading. Should be a reasonable numbers, not max integer :D
+    val INITIAL_LOAD_REQUESTS = (Utils.getApp() as SurveyApplication).getInitialLoadRequest()
+    val PER_PAGE_ITEMS = (Utils.getApp() as SurveyApplication).getItemsPerRequest()
     val OFFSET_TO_LOAD_MORE = 2  // Identify when trigger loading more data
 
     private val _surveysLiveData = MutableLiveData<List<SurveyItemResponse>>()

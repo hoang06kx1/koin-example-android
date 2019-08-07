@@ -10,6 +10,14 @@ class TestApplication: SurveyApplication() {
     override fun getApiEndpoint(): String {
         return "http://localhost:8080/"
     }
+
+    override fun getInitialLoadRequest(): Int {
+        return 1
+    }
+
+    override fun getItemsPerRequest(): Int {
+        return 4
+    }
 }
 
 class MockTestRunner : AndroidJUnitRunner() {
