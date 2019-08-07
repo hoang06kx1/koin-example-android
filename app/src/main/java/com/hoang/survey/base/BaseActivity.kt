@@ -27,7 +27,9 @@ open class BaseActivity : AppCompatActivity() {
     fun hideLoadingDialog() {
         if (isShowingLoadingDialog()) {
             loadingDialog?.dismiss()
-            EspressoCountingIdlingResource.idlingResource.decrement()
+            if (!EspressoCountingIdlingResource.idlingResource.isIdleNow) {
+                EspressoCountingIdlingResource.idlingResource.decrement()
+            }
         }
     }
 
