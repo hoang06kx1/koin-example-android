@@ -1,6 +1,7 @@
 package com.hoang.survey.listsurveys
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.lifecycle.Observer
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.blankj.utilcode.util.Utils
 import com.google.gson.JsonSyntaxException
@@ -12,8 +13,10 @@ import com.nhaarman.mockito_kotlin.*
 import io.reactivex.Single
 import okhttp3.ResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
+import org.amshove.kluent.`should be greater than`
 import org.amshove.kluent.`should equal`
 import org.amshove.kluent.`should not be`
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -35,22 +38,25 @@ class MainActivityViewModelTest {
     private val surveyRepository: SurveyRepository = mock()
     private lateinit var mainActivityViewModel: MainActivityViewModel
     private val fakeSurvey = SurveyItemResponse("id", "title", "desc", "url")
-    private lateinit var fakeListSurvey: ArrayList<SurveyItemResponse>
-    private lateinit var fakeSurveysPerRequest: ArrayList<SurveyItemResponse>
 
     @Before
     fun init() {
         mainActivityViewModel = MainActivityViewModel(surveyRepository)
-        reset(surveyRepository)
-        fakeListSurvey = ArrayList()
-        fakeSurveysPerRequest = ArrayList()
-        for (i in 1..30) {
-            fakeListSurvey.add(fakeSurvey.copy())
+        whenever(surveyRepository.getSurveys(any(), any()))
+            .thenAnswer { invocation ->
+                val perPage = invocation.getArgument<Int>(1)
+                return@thenAnswer Single.just(createFakeListSurveys(perPage))
+            }
+        mainActivityViewModel.PER_PAGE_ITEMS `should be greater than` 0
+        mainActivityViewModel.INITIAL_LOAD_REQUESTS `should be greater than` 0
+    }
+
+    private fun createFakeListSurveys(size: Int): List<SurveyItemResponse> {
+        val fakeSurveys = arrayListOf<SurveyItemResponse>()
+        for (i in 1..size) {
+            fakeSurveys.add(fakeSurvey.copy())
         }
-        for (i in 1..mainActivityViewModel.PER_PAGE_ITEMS) {
-            fakeSurveysPerRequest.add(fakeSurvey.copy())
-        }
-        fakeSurveysPerRequest.size `should equal` 4
+        return fakeSurveys
     }
 
     @Test
@@ -102,18 +108,64 @@ class MainActivityViewModelTest {
     }
 
     @Test
-    fun `When load surveys at the first time, only load predefined numbers of items`() {
+    fun `When lazy load surveys at the first time, only load predefined numbers of items`() {
         val sizeShouldLoad = mainActivityViewModel.INITIAL_LOAD_REQUESTS * mainActivityViewModel.PER_PAGE_ITEMS
-        fakeSurveysPerRequest.size `should equal` mainActivityViewModel.PER_PAGE_ITEMS
-        whenever(surveyRepository.getSurveys(any(), any()))
-            .thenReturn(Single.just(fakeSurveysPerRequest))
-            .thenReturn(Single.just(fakeSurveysPerRequest))
-            .thenReturn(Single.just(fakeSurveysPerRequest))
         mainActivityViewModel.getSurveysLazy()
         for (i in 1..mainActivityViewModel.INITIAL_LOAD_REQUESTS) {
             verify(surveyRepository, times(1)).getSurveys(i, mainActivityViewModel.PER_PAGE_ITEMS)
         }
         mainActivityViewModel.surveysLiveData.value!!.size `should equal` sizeShouldLoad
+    }
+
+    @Test
+    fun `When lazy load surveys at the first time, stop fire more requests when all available surveys are loaded`() {
+        // Set number of initial load requests
+        val requestsNumber = mainActivityViewModel.javaClass.getDeclaredField("INITIAL_LOAD_REQUESTS")
+        requestsNumber.isAccessible = true
+        requestsNumber.set(mainActivityViewModel, 5)
+        mainActivityViewModel.INITIAL_LOAD_REQUESTS `should equal` 5
+
+        // Stub
+        reset(surveyRepository)
+        whenever(surveyRepository.getSurveys(any(), any()))
+            .thenReturn(Single.just(createFakeListSurveys(mainActivityViewModel.PER_PAGE_ITEMS)))
+            .thenReturn(Single.just(createFakeListSurveys(mainActivityViewModel.PER_PAGE_ITEMS)))
+            .thenReturn(Single.just(listOf(fakeSurvey))) // should stop request after 3 times
+            .thenReturn(Single.just(listOf()))
+
+        mainActivityViewModel.getSurveysLazy()
+        for (i in 1..3) {
+            verify(surveyRepository, times(1)).getSurveys(i, mainActivityViewModel.PER_PAGE_ITEMS)
+        }
+        verify(surveyRepository, times(0)).getSurveys(4, mainActivityViewModel.PER_PAGE_ITEMS)
+        mainActivityViewModel.surveysLiveData.value!!.size `should equal` (mainActivityViewModel.PER_PAGE_ITEMS * 2 + 1)
+    }
+
+    @Test
+    fun `When refresh surveys, should call first lazy load if there is no data is displaying`() {
+        val sizeShouldLoad = mainActivityViewModel.INITIAL_LOAD_REQUESTS * mainActivityViewModel.PER_PAGE_ITEMS
+        mainActivityViewModel.surveysLiveData.value!!.size `should equal` 0
+        mainActivityViewModel.refreshSurvey()
+        mainActivityViewModel.surveysLiveData.value!!.size `should equal` sizeShouldLoad
+    }
+
+    @Test
+    fun `When refresh surveys, load number of items equals with number of items are displaying`() {
+        val sizeShouldLoad = mainActivityViewModel.INITIAL_LOAD_REQUESTS * mainActivityViewModel.PER_PAGE_ITEMS
+        mainActivityViewModel.surveysLiveData.value!!.size `should equal` 0
+        val observer = mock<Observer<List<SurveyItemResponse>>>()
+        mainActivityViewModel.getSurveysLazy()
+        mainActivityViewModel.surveysLiveData.value!!.size `should equal` sizeShouldLoad
+        mainActivityViewModel.surveysLiveData.observeForever(observer)
+        mainActivityViewModel.refreshSurvey()
+        val sizeShouldRefresh = sizeShouldLoad
+        mainActivityViewModel.surveysLiveData.value!!.size `should equal` sizeShouldRefresh
+        verify(observer, times(2)).onChanged(any()) // changed 2 times: first lazy load and later refresh
+    }
+
+    @After
+    fun reset() {
+        reset(surveyRepository)
     }
 
     private fun stubHttpError(code: Int) {

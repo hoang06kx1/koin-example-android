@@ -1,7 +1,5 @@
 package com.hoang.survey.testutil
 
-import androidx.lifecycle.LiveData
-import com.jraska.livedata.TestObserver
 import io.reactivex.android.plugins.RxAndroidPlugins
 import io.reactivex.plugins.RxJavaPlugins
 import io.reactivex.schedulers.Schedulers
@@ -13,6 +11,7 @@ import okio.source
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
+import org.mockito.ArgumentCaptor
 import java.util.concurrent.TimeUnit
 
 fun MockWebServer.enqueueFromFile(fileName: String, headers: Map<String, String> = emptyMap()) {
@@ -36,12 +35,9 @@ fun <T> resetSingleton(klass: Class<T>) {
     val instance = klass.getDeclaredField("instance")
     instance.isAccessible = true
     instance.set(null, null)
-    instance.set(null, null)
 }
 
-fun <T> LiveData<T>.test(): TestObserver<T> {
-    return TestObserver.test(this)
-}
+inline fun <reified T : Any> argumentCaptor() = ArgumentCaptor.forClass(T::class.java)
 
 class RxImmediateSchedulerRule : TestRule {
 
