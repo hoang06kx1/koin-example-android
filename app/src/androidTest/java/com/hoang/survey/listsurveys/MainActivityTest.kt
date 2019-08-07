@@ -13,6 +13,7 @@ import androidx.test.filters.LargeTest
 import com.hoang.survey.R
 import com.hoang.survey.base.EspressoCountingIdlingResource
 import com.hoang.survey.surveydetail.SurveyDetailActivity
+import com.schibsted.spain.barista.interaction.BaristaClickInteractions.clickOn
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -39,7 +40,7 @@ class MainActivityTest {
 
     @Test
     fun clickTakeSurveyButton_shouldNavigateToNextScreen() {
-        onView(withId(R.id.bt_take_survey)).perform(click())
+        clickOn(R.id.bt_take_survey)
         intended(hasComponent(SurveyDetailActivity::class.getFullName()))
     }
 
