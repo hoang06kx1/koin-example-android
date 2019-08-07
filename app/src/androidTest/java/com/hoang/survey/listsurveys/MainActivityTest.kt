@@ -7,8 +7,10 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.espresso.intent.rule.IntentsTestRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import com.blankj.utilcode.util.Utils
 import com.google.common.truth.Truth.assertThat
 import com.hoang.survey.R
+import com.hoang.survey.TestApplication
 import com.hoang.survey.base.EspressoCountingIdlingResource
 import com.hoang.survey.surveydetail.SurveyDetailActivity
 import com.hoang.survey.testutil.enqueueFromFile
@@ -50,23 +52,11 @@ class MainActivityTest {
     @Test
     fun clickRefreshButton_shouldUpdateSurveys() {
         mockWebServer.enqueueFromFile("surveys-4.json")
-        mockWebServer.enqueueFromFile("surveys-1.json")
-        mockWebServer.enqueueFromFile("surveys-1.json")
-        mockWebServer.enqueueFromFile("surveys-1-refresh.json")
+        mockWebServer.enqueueFromFile("surveys-4-refresh.json")
         ActivityScenario.launch(MainActivity::class.java)
-        val activity = MainActivity.getInstance().get()
 
-        // Set number of initial load requests
-        val requestsNumber = activity!!.mainActivityViewModel.javaClass.getDeclaredField("INITIAL_LOAD_REQUESTS")
-        requestsNumber.isAccessible = true
-        requestsNumber.set(activity!!.mainActivityViewModel, 1) // only load one time
-        assertThat(activity!!.mainActivityViewModel.INITIAL_LOAD_REQUESTS).isEqualTo(1)
-
-        // Set number of per page items request
-        val requestItems = activity!!.mainActivityViewModel.javaClass.getDeclaredField("PER_PAGE_ITEMS")
-        requestsNumber.isAccessible = true
-        requestsNumber.set(activity!!.mainActivityViewModel, 1) // only load one time
-        assertThat(activity!!.mainActivityViewModel.INITIAL_LOAD_REQUESTS).isEqualTo(4)
+        assertThat((Utils.getApp() as TestApplication).getInitialLoadRequest()).isEqualTo(1)
+        assertThat((Utils.getApp() as TestApplication).getItemsPerRequest()).isEqualTo(4)
 
         assertContains("Bangkok")
         clickOn(R.id.bt_refresh)
