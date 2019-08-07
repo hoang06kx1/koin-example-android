@@ -15,10 +15,10 @@ open class BaseActivity : AppCompatActivity() {
                     .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
                     .setCancellable(false)
                     .setDimAmount(0.5f)
-//                loadingDialog?.setTitleText(getString(R.string.please_wait))?.setCancelable(false)
             }
 
             if (!isShowingLoadingDialog()) {
+                EspressoCountingIdlingResource.idlingResource.increment()
                 loadingDialog?.show()
             }
         }
@@ -27,6 +27,9 @@ open class BaseActivity : AppCompatActivity() {
     fun hideLoadingDialog() {
         if (isShowingLoadingDialog()) {
             loadingDialog?.dismiss()
+            if (!EspressoCountingIdlingResource.idlingResource.isIdleNow) {
+                EspressoCountingIdlingResource.idlingResource.decrement()
+            }
         }
     }
 

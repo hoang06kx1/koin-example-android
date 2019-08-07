@@ -10,7 +10,7 @@ import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
 import timber.log.Timber
 
-class SurveyApplication : Application() {
+open class SurveyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
@@ -34,5 +34,17 @@ class SurveyApplication : Application() {
                 modules(listOf(testableModule, frameworkModule))
             }
         }
+    }
+
+    open fun getApiEndpoint(): String {
+        return "https://nimble-survey-api.herokuapp.com/surveys.json/"
+    }
+
+    open fun getInitialLoadRequest(): Int {
+        return 2
+    }
+
+    open fun getItemsPerRequest(): Int {
+        return 4
     }
 }

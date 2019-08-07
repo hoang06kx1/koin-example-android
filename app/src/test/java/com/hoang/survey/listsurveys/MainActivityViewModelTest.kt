@@ -172,8 +172,6 @@ class MainActivityViewModelTest {
 
     @Test
     fun `Do not load more data if there is no more surveys available`() {
-        val sizeShouldLoad = mainActivityViewModel.INITIAL_LOAD_REQUESTS * mainActivityViewModel.PER_PAGE_ITEMS
-
         // Set number of initial load requests
         val requestsNumber = mainActivityViewModel.javaClass.getDeclaredField("INITIAL_LOAD_REQUESTS")
         requestsNumber.isAccessible = true
