@@ -20,6 +20,7 @@ import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidApplication
+import org.koin.android.ext.koin.androidContext
 import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import retrofit2.Retrofit
@@ -36,12 +37,19 @@ val testableModule = module {
     single { provideGson() }
     single { AccessTokenProvider.getInstance(pref = get(), secretKey = DeviceUtils.getAndroidID()) }
     viewModel { MainActivityViewModel(get()) }
+    single { provideSurveyRepositoryImpl(get(), REFRESH_TOKEN_ENDPOINT) }
+    single { androidApplication().getSharedPreferences("com.hoang.survey.pref", MODE_PRIVATE) as SharedPreferences }
 }
 
 val frameworkModule = module {
-    single { provideSurveyRepositoryImpl(get(), REFRESH_TOKEN_ENDPOINT)}
-    single { androidApplication().getSharedPreferences("com.hoang.survey.pref", MODE_PRIVATE) as SharedPreferences }
-    single { providesRetrofitAdapter(httpClient = get(), gson = get(), endPoint = (Utils.getApp() as SurveyApplication).getApiEndpoint(), refreshTokenEndpoint = REFRESH_TOKEN_ENDPOINT) }
+    single {
+        providesRetrofitAdapter(
+            httpClient = get(),
+            gson = get(),
+            endPoint = "https://nimble-survey-api.herokuapp.com/surveys.json/",
+            refreshTokenEndpoint = REFRESH_TOKEN_ENDPOINT
+        )
+    }
 }
 
 fun provideGson(): Gson {
@@ -50,7 +58,12 @@ fun provideGson(): Gson {
         .create()
 }
 
-fun providesRetrofitAdapter(gson: Gson, httpClient: OkHttpClient, endPoint: String, refreshTokenEndpoint: String): Retrofit {
+fun providesRetrofitAdapter(
+    gson: Gson,
+    httpClient: OkHttpClient,
+    endPoint: String,
+    refreshTokenEndpoint: String
+): Retrofit {
     val retrofit = Retrofit.Builder()
         .client(httpClient)
         .baseUrl(endPoint)

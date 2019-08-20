@@ -6,6 +6,7 @@ import com.hoang.survey.di.frameworkModule
 import com.hoang.survey.di.testableModule
 import io.reactivex.plugins.RxJavaPlugins
 import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
 import timber.log.Timber
@@ -17,9 +18,12 @@ open class SurveyApplication : Application() {
         // core utils
         Utils.init(this)
 
-        // error handler for rxjava2 to avoid crash
+        // error handler for rxjava2 to avoid crash ONLY ON RELEASE BUILD to increase User experience
         if (!BuildConfig.DEBUG) {
-            RxJavaPlugins.setErrorHandler(Throwable::printStackTrace)
+            RxJavaPlugins.setErrorHandler { err ->
+                err.printStackTrace()
+                // should log to a error-tracking server or to crash report system likes Crashlyptics
+            }
         }
 
         if (BuildConfig.DEBUG) {
@@ -30,6 +34,7 @@ open class SurveyApplication : Application() {
         // this check is for RoboElectric tests that run in parallel so Koin gets set up multiple times
         if (GlobalContext.getOrNull() == null) {
             startKoin {
+                androidLogger()
                 androidContext(this@SurveyApplication)
                 modules(listOf(testableModule, frameworkModule))
             }
