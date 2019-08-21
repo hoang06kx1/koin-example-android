@@ -16,8 +16,8 @@ import retrofit2.HttpException
 class MainActivityViewModel(private val surveyRepository: SurveyRepository) : BaseViewModel() {
 
     // Number of api requests should be called for first loading. Should be a reasonable numbers, not max integer :D
-    val INITIAL_LOAD_REQUESTS = (Utils.getApp() as SurveyApplication).getInitialLoadRequest()
-    val PER_PAGE_ITEMS = (Utils.getApp() as SurveyApplication).getItemsPerRequest()
+    val INITIAL_LOAD_REQUESTS = 2
+    val PER_PAGE_ITEMS = 4
     val OFFSET_TO_LOAD_MORE = 2  // Identify when trigger loading more data
 
     private val _surveysLiveData = MutableLiveData<List<SurveyItemResponse>>()

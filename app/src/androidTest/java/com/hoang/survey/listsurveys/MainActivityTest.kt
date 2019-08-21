@@ -1,17 +1,13 @@
 package com.hoang.survey.listsurveys
 
-import android.app.PendingIntent.getActivity
 import android.content.Context
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.os.SystemClock
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.swipeDown
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents.intended
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
@@ -21,26 +17,20 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
 import androidx.viewpager2.widget.ViewPager2
 import com.blankj.utilcode.util.Utils
-import com.bumptech.glide.util.Util
 import com.google.common.truth.Truth.assertThat
 import com.hoang.survey.R
-import com.hoang.survey.TestApplication
 import com.hoang.survey.base.EspressoCountingIdlingResource
 import com.hoang.survey.surveydetail.SurveyDetailActivity
 import com.hoang.survey.testutil.enqueueFromFile
 import com.hoang.survey.testutil.swipeNext
 import com.hoang.survey.testutil.swipePrevious
-import com.schibsted.spain.barista.assertion.BaristaVisibilityAssertions
 import com.schibsted.spain.barista.assertion.BaristaVisibilityAssertions.assertContains
-import com.schibsted.spain.barista.assertion.BaristaVisibilityAssertions.assertDisplayed
 import com.schibsted.spain.barista.interaction.BaristaClickInteractions.clickOn
 import com.schibsted.spain.barista.internal.matcher.DisplayedMatchers.displayedAssignableFrom
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
-import org.hamcrest.Matchers.containsString
 import org.hamcrest.Matchers.not
 import org.junit.After
 import org.junit.Before
@@ -62,8 +52,8 @@ class MainActivityTest {
         mockWebServer.start(8080)
         mockWebServer.enqueueFromFile("surveys-4.json")
         IdlingRegistry.getInstance().register(EspressoCountingIdlingResource.idlingResource)
-        assertThat((Utils.getApp() as TestApplication).getInitialLoadRequest()).isEqualTo(1)
-        assertThat((Utils.getApp() as TestApplication).getItemsPerRequest()).isEqualTo(4)
+//        assertThat((Utils.getApp() as TestApplication).getInitialLoadRequest()).isEqualTo(1)
+//        assertThat((Utils.getApp() as TestApplication).getItemsPerRequest()).isEqualTo(4)
     }
 
     @Test
@@ -89,8 +79,8 @@ class MainActivityTest {
         mockWebServer.enqueueFromFile("surveys-4-refresh.json")
         ActivityScenario.launch(MainActivity::class.java)
 
-        assertThat((Utils.getApp() as TestApplication).getInitialLoadRequest()).isEqualTo(1)
-        assertThat((Utils.getApp() as TestApplication).getItemsPerRequest()).isEqualTo(4)
+//        assertThat((Utils.getApp() as TestApplication).getInitialLoadRequest()).isEqualTo(1)
+//        assertThat((Utils.getApp() as TestApplication).getItemsPerRequest()).isEqualTo(4)
 
         assertContains("Bangkok")
         clickOn(R.id.bt_refresh)

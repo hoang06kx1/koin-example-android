@@ -35,16 +35,4 @@ open class SurveyApplication : Application() {
             }
         }
     }
-
-    open fun getApiEndpoint(): String {
-        return "https://nimble-survey-api.herokuapp.com/surveys.json/"
-    }
-
-    open fun getInitialLoadRequest(): Int {
-        return 2
-    }
-
-    open fun getItemsPerRequest(): Int {
-        return 4
-    }
 }

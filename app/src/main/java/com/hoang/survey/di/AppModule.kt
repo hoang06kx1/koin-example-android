@@ -3,12 +3,10 @@ package com.hoang.survey.di
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import com.blankj.utilcode.util.DeviceUtils
-import com.blankj.utilcode.util.Utils
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.hoang.survey.BuildConfig
-import com.hoang.survey.SurveyApplication
 import com.hoang.survey.api.SurveyServiceApi
 import com.hoang.survey.authentication.AccessTokenAuthenticator
 import com.hoang.survey.authentication.AccessTokenProvider
@@ -28,6 +26,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 val DEFAULT_NETWORK_TIMEOUT = 10L
+val API_END_POINT = "https://nimble-survey-api.herokuapp.com/surveys.json/"
 val REFRESH_TOKEN_ENDPOINT =
     "https://nimble-survey-api.herokuapp.com/oauth/token?grant_type=password&username=carlos%40nimbl3.com&password=antikera"
 
@@ -39,9 +38,16 @@ val testableModule = module {
 }
 
 val frameworkModule = module {
-    single { provideSurveyRepositoryImpl(get(), REFRESH_TOKEN_ENDPOINT)}
+    single { provideSurveyRepositoryImpl(get(), REFRESH_TOKEN_ENDPOINT) }
     single { androidApplication().getSharedPreferences("com.hoang.survey.pref", MODE_PRIVATE) as SharedPreferences }
-    single { providesRetrofitAdapter(httpClient = get(), gson = get(), endPoint = (Utils.getApp() as SurveyApplication).getApiEndpoint(), refreshTokenEndpoint = REFRESH_TOKEN_ENDPOINT) }
+    single {
+        providesRetrofitAdapter(
+            httpClient = get(),
+            gson = get(),
+            endPoint = API_END_POINT,
+            refreshTokenEndpoint = REFRESH_TOKEN_ENDPOINT
+        )
+    }
 }
 
 fun provideGson(): Gson {
@@ -50,7 +56,12 @@ fun provideGson(): Gson {
         .create()
 }
 
-fun providesRetrofitAdapter(gson: Gson, httpClient: OkHttpClient, endPoint: String, refreshTokenEndpoint: String): Retrofit {
+fun providesRetrofitAdapter(
+    gson: Gson,
+    httpClient: OkHttpClient,
+    endPoint: String,
+    refreshTokenEndpoint: String
+): Retrofit {
     val retrofit = Retrofit.Builder()
         .client(httpClient)
         .baseUrl(endPoint)
