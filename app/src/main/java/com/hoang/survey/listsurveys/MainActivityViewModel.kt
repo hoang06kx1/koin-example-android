@@ -2,8 +2,6 @@ package com.hoang.survey.listsurveys
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.blankj.utilcode.util.Utils
-import com.hoang.survey.SurveyApplication
 import com.hoang.survey.api.ApiResponse
 import com.hoang.survey.api.SurveyItemResponse
 import com.hoang.survey.base.BaseViewModel
@@ -13,11 +11,11 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.addTo
 import retrofit2.HttpException
 
-class MainActivityViewModel(private val surveyRepository: SurveyRepository) : BaseViewModel() {
-
-    // Number of api requests should be called for first loading. Should be a reasonable numbers, not max integer :D
-    val INITIAL_LOAD_REQUESTS = 2
-    val PER_PAGE_ITEMS = 4
+class MainActivityViewModel(
+    private val surveyRepository: SurveyRepository,
+    private val initialLoadRequest: Int,
+    private val perPageItems: Int
+) : BaseViewModel() {
     val OFFSET_TO_LOAD_MORE = 2  // Identify when trigger loading more data
 
     private val _surveysLiveData = MutableLiveData<List<SurveyItemResponse>>()
@@ -29,16 +27,18 @@ class MainActivityViewModel(private val surveyRepository: SurveyRepository) : Ba
         _surveysLiveData.value = listOf()
     }
 
-    /***
+    /**
      * Lazy loading to increase UX, because we don't know how many items available at first so we just load a small number of items.
      * More items will be loaded automatically when user scroll to the end
      */
     fun getSurveysLazy() {
         hasMoreToLoad = true
-        Flowable.range(1, INITIAL_LOAD_REQUESTS)
-            .concatMap { surveyRepository.getSurveys(it, PER_PAGE_ITEMS).toFlowable() }  // concatMap here gives better performance comparing to concatMapEager
+        Flowable.range(1, initialLoadRequest)
+            .concatMap {
+                surveyRepository.getSurveys(it, perPageItems).toFlowable()
+            }  // concatMap here gives better performance comparing to concatMapEager
             .takeUntil {
-                hasMoreToLoad = !(it.isEmpty() || it.size < PER_PAGE_ITEMS)
+                hasMoreToLoad = !(it.isEmpty() || it.size < perPageItems)
                 !hasMoreToLoad
             }
             .doOnSubscribe {
@@ -70,7 +70,7 @@ class MainActivityViewModel(private val surveyRepository: SurveyRepository) : Ba
             surveyRepository.getSurveys(1, _surveysLiveData.value!!.size)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(object : FullCallbackWrapper<List<SurveyItemResponse>>() {
-                    override fun     onResponse(response: ApiResponse<List<SurveyItemResponse>>) {
+                    override fun onResponse(response: ApiResponse<List<SurveyItemResponse>>) {
                         response.result?.let {
                             _surveysLiveData.value = it
                         }
@@ -85,8 +85,8 @@ class MainActivityViewModel(private val surveyRepository: SurveyRepository) : Ba
     fun handleLoadMoreSurveys(currentItemPosition: Int) {
         if (!isLoadingSurveys && _surveysLiveData.value!!.size - currentItemPosition <= OFFSET_TO_LOAD_MORE && hasMoreToLoad && currentItemPosition != 0) {
             isLoadingSurveys = true
-            val nextPageToLoad = (_surveysLiveData.value!!.size / PER_PAGE_ITEMS) + 1
-            surveyRepository.getSurveys(nextPageToLoad, PER_PAGE_ITEMS)
+            val nextPageToLoad = (_surveysLiveData.value!!.size / perPageItems) + 1
+            surveyRepository.getSurveys(nextPageToLoad, perPageItems)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(object : RawCallbackWrapper<List<SurveyItemResponse>>() {
                     override fun onResponse(response: ApiResponse<List<SurveyItemResponse>>) {
@@ -96,7 +96,7 @@ class MainActivityViewModel(private val surveyRepository: SurveyRepository) : Ba
                                 mutableList.addAll(it)
                                 _surveysLiveData.value = mutableList
                             }
-                            if (it.isEmpty() || it.size < PER_PAGE_ITEMS) {
+                            if (it.isEmpty() || it.size < perPageItems) {
                                 hasMoreToLoad = false
                             }
                         }

@@ -30,16 +30,16 @@ val API_END_POINT = "https://nimble-survey-api.herokuapp.com/surveys.json/"
 val REFRESH_TOKEN_ENDPOINT =
     "https://nimble-survey-api.herokuapp.com/oauth/token?grant_type=password&username=carlos%40nimbl3.com&password=antikera"
 
-val testableModule = module {
+val sharableModule = module {
     single { providesOkHttpClient(accessTokenProvider = get()) }
     single { provideGson() }
     single { AccessTokenProvider.getInstance(pref = get(), secretKey = DeviceUtils.getAndroidID()) }
-    viewModel { MainActivityViewModel(get()) }
-}
-
-val frameworkModule = module {
+    viewModel { MainActivityViewModel(surveyRepository = get(), initialLoadRequest = 2, perPageItems = 4) }
     single { provideSurveyRepositoryImpl(get(), REFRESH_TOKEN_ENDPOINT) }
     single { androidApplication().getSharedPreferences("com.hoang.survey.pref", MODE_PRIVATE) as SharedPreferences }
+}
+
+val productionModule = module {
     single {
         providesRetrofitAdapter(
             httpClient = get(),
