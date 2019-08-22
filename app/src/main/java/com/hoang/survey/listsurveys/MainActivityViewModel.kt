@@ -28,7 +28,8 @@ class MainActivityViewModel(
     }
 
     /**
-     * Lazy loading to increase UX, because we don't know how many items available at first so we just load a small number of items.
+     * Lazy loading to increase UX, because we don't know how many items available at first so we just load a small
+     * number of items.
      * More items will be loaded automatically when user scroll to the end
      */
     fun getSurveysLazy() {
@@ -83,7 +84,10 @@ class MainActivityViewModel(
      * Load more item when user slide to near end
      */
     fun handleLoadMoreSurveys(currentItemPosition: Int) {
-        if (!isLoadingSurveys && _surveysLiveData.value!!.size - currentItemPosition <= OFFSET_TO_LOAD_MORE && hasMoreToLoad && currentItemPosition != 0) {
+        if (!isLoadingSurveys
+            && _surveysLiveData.value!!.size - currentItemPosition <= OFFSET_TO_LOAD_MORE
+            && hasMoreToLoad && currentItemPosition != 0
+        ) {
             isLoadingSurveys = true
             val nextPageToLoad = (_surveysLiveData.value!!.size / perPageItems) + 1
             surveyRepository.getSurveys(nextPageToLoad, perPageItems)
