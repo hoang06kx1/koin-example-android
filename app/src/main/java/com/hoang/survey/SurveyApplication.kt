@@ -30,6 +30,10 @@ open class SurveyApplication : Application() {
             Timber.plant(Timber.DebugTree())
         }
 
+        startKoin()
+    }
+
+    protected open fun startKoin() {
         // DI
         // this check is for RoboElectric tests that run in parallel so Koin gets set up multiple times
         if (GlobalContext.getOrNull() == null) {

@@ -18,10 +18,11 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.viewpager2.widget.ViewPager2
-import com.blankj.utilcode.util.Utils
 import com.google.common.truth.Truth.assertThat
 import com.hoang.survey.R
 import com.hoang.survey.base.EspressoCountingIdlingResource
+import com.hoang.survey.di.sharableModule
+import com.hoang.survey.di.testModule
 import com.hoang.survey.surveydetail.SurveyDetailActivity
 import com.hoang.survey.testutil.enqueueFromFile
 import com.hoang.survey.testutil.swipeNext
@@ -37,6 +38,8 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
 import org.koin.ext.getFullName
 
 @RunWith(AndroidJUnit4::class)
@@ -44,7 +47,6 @@ import org.koin.ext.getFullName
 class MainActivityTest {
     @get:Rule
     val intentsTestRule = IntentsTestRule(MainActivity::class.java)
-
     val mockWebServer = MockWebServer()
 
     @Before
@@ -52,8 +54,6 @@ class MainActivityTest {
         mockWebServer.start(8080)
         mockWebServer.enqueueFromFile("surveys-4.json")
         IdlingRegistry.getInstance().register(EspressoCountingIdlingResource.idlingResource)
-//        assertThat((Utils.getApp() as TestApplication).getInitialLoadRequest()).isEqualTo(1)
-//        assertThat((Utils.getApp() as TestApplication).getItemsPerRequest()).isEqualTo(4)
     }
 
     @Test
@@ -78,10 +78,6 @@ class MainActivityTest {
     fun clickRefreshButton_shouldUpdateSurveysWithNewData() {
         mockWebServer.enqueueFromFile("surveys-4-refresh.json")
         ActivityScenario.launch(MainActivity::class.java)
-
-//        assertThat((Utils.getApp() as TestApplication).getInitialLoadRequest()).isEqualTo(1)
-//        assertThat((Utils.getApp() as TestApplication).getItemsPerRequest()).isEqualTo(4)
-
         assertContains("Bangkok")
         clickOn(R.id.bt_refresh)
         assertContains("Danang")

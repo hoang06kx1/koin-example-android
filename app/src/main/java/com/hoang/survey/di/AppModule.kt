@@ -34,18 +34,30 @@ val sharableModule = module {
     single { providesOkHttpClient(accessTokenProvider = get()) }
     single { provideGson() }
     single { AccessTokenProvider.getInstance(pref = get(), secretKey = DeviceUtils.getAndroidID()) }
-    viewModel { MainActivityViewModel(surveyRepository = get(), initialLoadRequest = 2, perPageItems = 4) }
     single { provideSurveyRepositoryImpl(get(), REFRESH_TOKEN_ENDPOINT) }
     single { androidApplication().getSharedPreferences("com.hoang.survey.pref", MODE_PRIVATE) as SharedPreferences }
 }
 
 val productionModule = module {
+    viewModel { MainActivityViewModel(surveyRepository = get(), initialLoadRequest = 2, perPageItems = 4) }
     single {
         providesRetrofitAdapter(
             httpClient = get(),
             gson = get(),
             endPoint = API_END_POINT,
             refreshTokenEndpoint = REFRESH_TOKEN_ENDPOINT
+        )
+    }
+}
+
+val testModule = module {
+    viewModel { MainActivityViewModel(surveyRepository = get(), initialLoadRequest = 1, perPageItems = 4) }
+    single {
+        providesRetrofitAdapter(
+            httpClient = get(),
+            gson = get(),
+            endPoint = "http://127.0.0.1:8080/",
+            refreshTokenEndpoint = "http://127.0.0.1:8080/refresh/token"
         )
     }
 }
