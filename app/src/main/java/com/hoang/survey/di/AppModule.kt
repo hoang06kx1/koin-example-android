@@ -10,7 +10,6 @@ import com.hoang.survey.BuildConfig
 import com.hoang.survey.api.SurveyServiceApi
 import com.hoang.survey.authentication.AccessTokenAuthenticator
 import com.hoang.survey.authentication.AccessTokenProvider
-import com.hoang.survey.authentication.SurveyRepositoryHolder
 import com.hoang.survey.listsurveys.MainActivityViewModel
 import com.hoang.survey.repository.SurveyRepository
 import com.hoang.survey.repository.SurveyRepositoryImpl
@@ -29,12 +28,13 @@ val DEFAULT_NETWORK_TIMEOUT = 10L
 val API_END_POINT = "https://nimble-survey-api.herokuapp.com/surveys.json/"
 val REFRESH_TOKEN_ENDPOINT =
     "https://nimble-survey-api.herokuapp.com/oauth/token?grant_type=password&username=carlos%40nimbl3.com&password=antikera"
+val REFRESH_TOKEN_TEST_ENDPOINT = "http://localhost:8080/refresh/token"
 
 val sharableModule = module {
     single { providesOkHttpClient(accessTokenProvider = get()) }
     single { provideGson() }
     single { AccessTokenProvider.getInstance(pref = get(), secretKey = DeviceUtils.getAndroidID()) }
-    single { provideSurveyRepositoryImpl(get(), REFRESH_TOKEN_ENDPOINT) }
+    single { provideSurveyRepositoryImpl(retrofit = get(), refreshTokenEndpoint = REFRESH_TOKEN_ENDPOINT) }
     single { androidApplication().getSharedPreferences("com.hoang.survey.pref", MODE_PRIVATE) as SharedPreferences }
 }
 
@@ -44,8 +44,7 @@ val productionModule = module {
         providesRetrofitAdapter(
             httpClient = get(),
             gson = get(),
-            endPoint = API_END_POINT,
-            refreshTokenEndpoint = REFRESH_TOKEN_ENDPOINT
+            endPoint = API_END_POINT
         )
     }
 }
@@ -56,8 +55,7 @@ val testModule = module {
         providesRetrofitAdapter(
             httpClient = get(),
             gson = get(),
-            endPoint = "http://127.0.0.1:8080/",
-            refreshTokenEndpoint = "http://127.0.0.1:8080/refresh/token"
+            endPoint = "http://127.0.0.1:8080/"
         )
     }
 }
@@ -71,8 +69,7 @@ fun provideGson(): Gson {
 fun providesRetrofitAdapter(
     gson: Gson,
     httpClient: OkHttpClient,
-    endPoint: String,
-    refreshTokenEndpoint: String
+    endPoint: String
 ): Retrofit {
     val retrofit = Retrofit.Builder()
         .client(httpClient)
@@ -80,15 +77,6 @@ fun providesRetrofitAdapter(
         .addConverterFactory(GsonConverterFactory.create(gson))
         .addCallAdapterFactory(RxJava2CallAdapterFactory.createAsync())
         .build()
-
-    // inject survey repository for refresh token
-    if (SurveyRepositoryHolder.getInstance().surveyRepository == null) {
-        SurveyRepositoryHolder.getInstance().surveyRepository =
-            SurveyRepositoryImpl(
-                retrofit.create(SurveyServiceApi::class.java),
-                refreshTokenEndpoint
-            )
-    }
     return retrofit
 }
 
@@ -112,18 +100,14 @@ fun providesOkHttpClient(accessTokenProvider: AccessTokenProvider): OkHttpClient
         readTimeout(DEFAULT_NETWORK_TIMEOUT, TimeUnit.SECONDS)
         writeTimeout(DEFAULT_NETWORK_TIMEOUT, TimeUnit.SECONDS)
         addInterceptor(tokenInterceptor)
-        authenticator(AccessTokenAuthenticator(accessTokenProvider, SurveyRepositoryHolder.getInstance()))
+        authenticator(AccessTokenAuthenticator(accessTokenProvider))
         addInterceptor(logInterceptor)
     }.build()
 }
 
 fun provideSurveyRepositoryImpl(retrofit: Retrofit, refreshTokenEndpoint: String): SurveyRepository {
-    if (SurveyRepositoryHolder.getInstance().surveyRepository == null) {
-        val surveyRepository = SurveyRepositoryImpl(
-            retrofit.create(SurveyServiceApi::class.java),
-            refreshTokenEndpoint
-        )
-        SurveyRepositoryHolder.getInstance().surveyRepository = surveyRepository
-    }
-    return SurveyRepositoryHolder.getInstance().surveyRepository!!
+    return SurveyRepositoryImpl(
+        retrofit.create(SurveyServiceApi::class.java),
+        refreshTokenEndpoint
+    )
 }
