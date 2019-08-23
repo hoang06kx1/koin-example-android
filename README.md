@@ -1,11 +1,14 @@
-# nbl-survey
-> Just another endless surveys...
+# Koin example for Android (nbl-survey)
+> One-feature-Android-application as an example of how to setup Koin 2.0.1 for AndroidX: from Unit Test to Integration Test.
 
-This is a demo application demonstrating how a good covering test could help you in writing less error-prone code.
-Written in Kotlin. (**Java**? sorry, I'm tired of null check)
+This is a demo application, based on Nimble's API, demonstrate how a good covering test can help you in writing less error-prone code.
 
+App has only one feature: make Http requests to the API to get the list of surveys from the endpoint and render on a **vertical** viewpager. If the token is expired, refresh the token before retrying the request.
+
+The most challenging thing is to set up [Koin DI](https://insert-koin.io/): when running test cases, Retrofit should be pointed to the mockWebServer endpoint instead of real API. And cycle dependency arose when reuse retrofit to refresh a new token.
+  
 ## Tools
- - DI: Koin (*should stick back to Dagger2..explain below*)
+ - DI: Koin ~~(*should stick back to Dagger2..explain below*)~~ 
  - Viewpager2 
  - Circle indicator
  - Android Architecture Components (*LiveData, Viewmodel*)
@@ -17,7 +20,7 @@ Written in Kotlin. (**Java**? sorry, I'm tired of null check)
  - KProgressHUD
  
 ## Test
- - AndroidX Test (*Deserve to be the next big thing in Anroid developers struggle life, I believe*)
+ - AndroidX
  - Espresso 
  - Robolectric 
  - Specially thanks to: [**Kluent**](https://github.com/MarkusAmshove/Kluent) and [**Barista**](https://github.com/SchibstedSpain/Barista) - *the guy who serve great Espresso* saved me from nightmare of **Hamcrest**
@@ -26,11 +29,11 @@ Written in Kotlin. (**Java**? sorry, I'm tired of null check)
 
 ### Koin
 
-Work pretty well, add and wire dependencies smooth and intuitive at first sight. When come to writing test, everything just collapses suddenly. Can not figure out how to override some dependency in test environment plus with lacking and ambiguous document makes me feel regret about choosing it over Dagger2.
+Works pretty well, add and wire dependencies smooth and intuitive at first sight. ~~When come to writing test, everything just collapses suddenly. Can not figure out how to override some dependency in test environment plus with lacking and ambiguous documents makes me feel regret about choosing it over Dagger2.~~ **loadKoinModule** with **(override = true)** can be used to alter existing dependency tree for testing purpose. 
 
-And one important thing: Dagger2 error is notified at compile-time, but Koin is at runtime. With Koin, you need to check your app more carefully.
+The most disadvantaged: Dagger2 detect dependency errors and notify at compile-time if there are any, but Koin only throws errors at **runtime**. With Koin, you need to check your app more carefully.
 
-And circular dependency seems a problem. I used a *Holder* as a workaround.
+And circular dependency seems a problem. ~~I used a *Holder* as a workaround.~~ Lazy initialization works well and simplifies the code.
 
 ### KProgressHUD
 More beautiful and easier to implement compared to Shimmer.
