@@ -21,6 +21,8 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.core.context.loadKoinModules
+import org.koin.dsl.module
 import retrofit2.HttpException
 import retrofit2.Response
 import javax.net.ssl.HttpsURLConnection
@@ -38,17 +40,17 @@ class MainActivityViewModelTest {
     private val surveyRepository: SurveyRepository = mock()
     private lateinit var mainActivityViewModel: MainActivityViewModel
     private val fakeSurvey = SurveyItemResponse("id", "title", "desc", "url")
+    private val INITIAL_LOAD_REQUESTS = 1
+    private val PER_PAGE_ITEMS = 4
 
     @Before
     fun init() {
-        mainActivityViewModel = MainActivityViewModel(surveyRepository)
+        mainActivityViewModel = MainActivityViewModel(surveyRepository, INITIAL_LOAD_REQUESTS, PER_PAGE_ITEMS)
         whenever(surveyRepository.getSurveys(any(), any()))
             .thenAnswer { invocation ->
                 val perPage = invocation.getArgument<Int>(1)
                 return@thenAnswer Single.just(createFakeListSurveys(perPage))
             }
-        mainActivityViewModel.PER_PAGE_ITEMS `should be greater than` 0
-        mainActivityViewModel.INITIAL_LOAD_REQUESTS `should be greater than` 0
     }
 
     private fun createFakeListSurveys(size: Int): List<SurveyItemResponse> {
@@ -109,41 +111,36 @@ class MainActivityViewModelTest {
 
     @Test
     fun `When lazy load surveys at the first time, only load predefined numbers of items`() {
-        val sizeShouldLoad = mainActivityViewModel.INITIAL_LOAD_REQUESTS * mainActivityViewModel.PER_PAGE_ITEMS
+        val sizeShouldLoad = INITIAL_LOAD_REQUESTS * PER_PAGE_ITEMS
         mainActivityViewModel.getSurveysLazy()
-        for (i in 1..mainActivityViewModel.INITIAL_LOAD_REQUESTS) {
-            verify(surveyRepository, times(1)).getSurveys(i, mainActivityViewModel.PER_PAGE_ITEMS)
+        for (i in 1..INITIAL_LOAD_REQUESTS) {
+            verify(surveyRepository, times(1)).getSurveys(i, PER_PAGE_ITEMS)
         }
         mainActivityViewModel.surveysLiveData.value!!.size `should equal` sizeShouldLoad
     }
 
     @Test
     fun `When lazy load surveys at the first time, stop firing more requests when all available surveys are loaded`() {
-        // Set number of initial load requests
-        val requestsNumber = mainActivityViewModel.javaClass.getDeclaredField("INITIAL_LOAD_REQUESTS")
-        requestsNumber.isAccessible = true
-        requestsNumber.set(mainActivityViewModel, 5)
-        mainActivityViewModel.INITIAL_LOAD_REQUESTS `should equal` 5
-
+        mainActivityViewModel = MainActivityViewModel(surveyRepository, 5, 4)
         // Stub
         reset(surveyRepository)
         whenever(surveyRepository.getSurveys(any(), any()))
-            .thenReturn(Single.just(createFakeListSurveys(mainActivityViewModel.PER_PAGE_ITEMS)))
-            .thenReturn(Single.just(createFakeListSurveys(mainActivityViewModel.PER_PAGE_ITEMS)))
+            .thenReturn(Single.just(createFakeListSurveys(PER_PAGE_ITEMS)))
+            .thenReturn(Single.just(createFakeListSurveys(PER_PAGE_ITEMS)))
             .thenReturn(Single.just(listOf(fakeSurvey))) // should stop request after 3 times
             .thenReturn(Single.just(listOf()))
 
         mainActivityViewModel.getSurveysLazy()
         for (i in 1..3) {
-            verify(surveyRepository, times(1)).getSurveys(i, mainActivityViewModel.PER_PAGE_ITEMS)
+            verify(surveyRepository, times(1)).getSurveys(i, PER_PAGE_ITEMS)
         }
-        verify(surveyRepository, times(0)).getSurveys(4, mainActivityViewModel.PER_PAGE_ITEMS)
-        mainActivityViewModel.surveysLiveData.value!!.size `should equal` (mainActivityViewModel.PER_PAGE_ITEMS * 2 + 1)
+        verify(surveyRepository, times(0)).getSurveys(4, PER_PAGE_ITEMS)
+        mainActivityViewModel.surveysLiveData.value!!.size `should equal` (PER_PAGE_ITEMS * 2 + 1)
     }
 
     @Test
     fun `When user scroll to the end, should load more data`() {
-        val sizeShouldLoad = mainActivityViewModel.INITIAL_LOAD_REQUESTS * mainActivityViewModel.PER_PAGE_ITEMS
+        val sizeShouldLoad = INITIAL_LOAD_REQUESTS * PER_PAGE_ITEMS
         mainActivityViewModel.getSurveysLazy()
         mainActivityViewModel.surveysLiveData.value!!.size `should equal` sizeShouldLoad
         val observer = mock<Observer<List<SurveyItemResponse>>>()
@@ -155,7 +152,7 @@ class MainActivityViewModelTest {
 
         offset++ // trigger load more now
         mainActivityViewModel.handleLoadMoreSurveys(offset) // second onchanged fired (2)
-        mainActivityViewModel.surveysLiveData.value!!.size `should equal` sizeShouldLoad + mainActivityViewModel.PER_PAGE_ITEMS
+        mainActivityViewModel.surveysLiveData.value!!.size `should equal` sizeShouldLoad + PER_PAGE_ITEMS
 
         offset++ // not near end anymore, don't trigger
         mainActivityViewModel.handleLoadMoreSurveys(offset) // don't trigger load more (2)
@@ -172,17 +169,12 @@ class MainActivityViewModelTest {
 
     @Test
     fun `Do not load more data if there is no more surveys available`() {
-        // Set number of initial load requests
-        val requestsNumber = mainActivityViewModel.javaClass.getDeclaredField("INITIAL_LOAD_REQUESTS")
-        requestsNumber.isAccessible = true
-        requestsNumber.set(mainActivityViewModel, 5)
-        mainActivityViewModel.INITIAL_LOAD_REQUESTS `should equal` 5
-
+        mainActivityViewModel = MainActivityViewModel(surveyRepository, 5, PER_PAGE_ITEMS)
         // Stub
         reset(surveyRepository)
         whenever(surveyRepository.getSurveys(any(), any()))
-            .thenReturn(Single.just(createFakeListSurveys(mainActivityViewModel.PER_PAGE_ITEMS)))
-            .thenReturn(Single.just(createFakeListSurveys(mainActivityViewModel.PER_PAGE_ITEMS)))
+            .thenReturn(Single.just(createFakeListSurveys(PER_PAGE_ITEMS)))
+            .thenReturn(Single.just(createFakeListSurveys(PER_PAGE_ITEMS)))
             .thenReturn(Single.just(listOf(fakeSurvey))) // should stop request after 3 times
             .thenReturn(Single.just(listOf()))
 
@@ -191,13 +183,13 @@ class MainActivityViewModelTest {
         mainActivityViewModel.getSurveysLazy() // onchanged fires 3 times (4)
         mainActivityViewModel.handleLoadMoreSurveys(mainActivityViewModel.surveysLiveData.value!!.size - 1) // should not trigger load more, there no more data
 
-        mainActivityViewModel.surveysLiveData.value!!.size `should equal` (mainActivityViewModel.PER_PAGE_ITEMS * 2 + 1)
+        mainActivityViewModel.surveysLiveData.value!!.size `should equal` (PER_PAGE_ITEMS * 2 + 1)
         verify(observer, times(4)).onChanged(any())
     }
 
     @Test
     fun `When refresh surveys, should call first lazy load if there is no data is displaying`() {
-        val sizeShouldLoad = mainActivityViewModel.INITIAL_LOAD_REQUESTS * mainActivityViewModel.PER_PAGE_ITEMS
+        val sizeShouldLoad = INITIAL_LOAD_REQUESTS * PER_PAGE_ITEMS
         mainActivityViewModel.surveysLiveData.value!!.size `should equal` 0
         mainActivityViewModel.refreshSurvey()
         mainActivityViewModel.surveysLiveData.value!!.size `should equal` sizeShouldLoad
@@ -205,7 +197,7 @@ class MainActivityViewModelTest {
 
     @Test
     fun `When refresh surveys, load number of items equals with number of items are displaying`() {
-        val sizeShouldLoad = mainActivityViewModel.INITIAL_LOAD_REQUESTS * mainActivityViewModel.PER_PAGE_ITEMS
+        val sizeShouldLoad = INITIAL_LOAD_REQUESTS * PER_PAGE_ITEMS
         mainActivityViewModel.surveysLiveData.value!!.size `should equal` 0
         val observer = mock<Observer<List<SurveyItemResponse>>>()
         mainActivityViewModel.getSurveysLazy()
@@ -220,7 +212,7 @@ class MainActivityViewModelTest {
         mainActivityViewModel.handleLoadMoreSurveys(sizeShouldLoad - 1) // third onChanged (3)
         mainActivityViewModel.refreshSurvey() // fourth onChanged (4)
         verify(observer, times(4)).onChanged(any())
-        mainActivityViewModel.surveysLiveData.value!!.size `should equal` sizeShouldLoad + mainActivityViewModel.PER_PAGE_ITEMS
+        mainActivityViewModel.surveysLiveData.value!!.size `should equal` sizeShouldLoad + PER_PAGE_ITEMS
     }
 
     @After

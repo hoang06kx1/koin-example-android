@@ -5,18 +5,18 @@ import android.content.Context
 import android.os.Bundle
 import android.os.StrictMode
 import androidx.test.runner.AndroidJUnitRunner
+import com.hoang.survey.di.sharableModule
+import com.hoang.survey.di.testModule
+import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidLogger
 
 class TestApplication: SurveyApplication() {
-    override fun getApiEndpoint(): String {
-        return "http://127.0.0.1:8080/"
-    }
-
-    override fun getInitialLoadRequest(): Int {
-        return 1
-    }
-
-    override fun getItemsPerRequest(): Int {
-        return 4
+    override fun startKoin() {
+        org.koin.core.context.startKoin {
+            androidLogger()
+            androidContext(this@TestApplication)
+            modules(listOf(sharableModule, testModule))
+        }
     }
 }
 

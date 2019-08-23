@@ -1,61 +1,59 @@
 package com.hoang.survey.authentication
 
-import android.content.Context
-import android.content.SharedPreferences
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
-import com.hoang.survey.di.*
-import com.hoang.survey.testutil.enqueueFromFile
+import com.hoang.survey.di.REFRESH_TOKEN_ENDPOINT
+import com.hoang.survey.di.provideSurveyRepositoryImpl
+import com.hoang.survey.di.providesRetrofitAdapter
 import com.hoang.survey.repository.SurveyRepository
+import com.hoang.survey.testutil.enqueueFromFile
 import com.hoang.survey.testutil.resetSingleton
 import com.hoang.survey.testutil.takeRequestWithTimeout
-import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.core.context.loadKoinModules
+import org.koin.core.context.stopKoin
+import org.koin.dsl.module
 import org.koin.test.KoinTest
-import retrofit2.Retrofit
+import org.koin.test.get
 
 
 @RunWith(AndroidJUnit4::class)
 class AccessTokenAuthenticatorTest : KoinTest {
-    val FILENAME = "preftest3"
-    val SECRET_KEY = "secretkey"
     val FAKE_NEW_TOKEN = "thisisjustafaketokenfortesting"
-
-    lateinit var context: Context
-    lateinit var sharedPreferences: SharedPreferences
     lateinit var server: MockWebServer
-    lateinit var testUrl: String
     lateinit var accessTokenProvider: AccessTokenProvider
     lateinit var refresTokenEndpoint: String
-    lateinit var okHttpClient: OkHttpClient
-    lateinit var retrofit: Retrofit
     lateinit var repository: SurveyRepository
 
     @Before
     fun setUp() {
-        resetSingleton(AccessTokenProvider::class.java)
-        resetSingleton(SurveyRepositoryHolder::class.java)
-
-        context = ApplicationProvider.getApplicationContext()
-        sharedPreferences = context.getSharedPreferences(FILENAME, Context.MODE_PRIVATE)
         server = MockWebServer()
-        testUrl = server.url("/").toString()
-        accessTokenProvider = AccessTokenProvider.getInstance(sharedPreferences, SECRET_KEY)
-        refresTokenEndpoint = "${testUrl}refresh/token"
-        okHttpClient = providesOkHttpClient(accessTokenProvider)
-        retrofit = providesRetrofitAdapter(provideGson(), okHttpClient, testUrl, refresTokenEndpoint)
-        repository = provideSurveyRepositoryImpl(retrofit, refresTokenEndpoint)
-    }
+        server.start(8080)
+        refresTokenEndpoint = "http://localhost:8080/refresh/token"
 
-    @Test
-    fun `SurveyRepositoryHolder should be singleton`() {
-        assertThat(SurveyRepositoryHolder.getInstance()).isEqualTo(SurveyRepositoryHolder.getInstance())
+        resetSingleton(AccessTokenProvider::class.java)
+        loadKoinModules(
+            listOf(
+                module {
+                    single(override = true) {
+                        provideSurveyRepositoryImpl(retrofit = get(), refreshTokenEndpoint = refresTokenEndpoint)
+                    }
+                    single(override = true) {
+                        providesRetrofitAdapter(
+                            httpClient = get(),
+                            gson = get(),
+                            endPoint = "http://127.0.0.1:8080/"
+                        )
+                    }
+                })
+        )
+        accessTokenProvider = get()
+        repository = get()
     }
 
     @Test
@@ -89,5 +87,6 @@ class AccessTokenAuthenticatorTest : KoinTest {
     @After
     fun tearDown() {
         server.shutdown()
+        stopKoin()
     }
 }
